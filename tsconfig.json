@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "sourceMap": false,
+        "target": "es5",
+        "outDir": "dist",
+        "lib": [
+            "es6",
+            "es2017"
+        ]
+    },
+    "exclude": [
+        "test/**",
+        "rules/*"
+    ]
+}
