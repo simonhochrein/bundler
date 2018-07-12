@@ -16,11 +16,11 @@ $ npm install https://github.com/simonhochrein/bundler
 
 # Benchmarks
 
-<img src="https://raw.githubusercontent.com/simonhochrein/bundler/master/images/dry-run.png" style="width: 400px"/>
+![Dry Run](https://raw.githubusercontent.com/simonhochrein/bundler/master/images/dry-run.png)
 
-<img src="https://raw.githubusercontent.com/simonhochrein/bundler/master/images/cache.png" style="width: 400px"/>
+![Cache](https://raw.githubusercontent.com/simonhochrein/bundler/master/images/cache.png)
 
-<img src="https://raw.githubusercontent.com/simonhochrein/bundler/master/images/watch.png" style="width: 400px"/>
+![Watch](https://raw.githubusercontent.com/simonhochrein/bundler/master/images/watch.png)
 
 # Contributing
 Contributions are welcome!
