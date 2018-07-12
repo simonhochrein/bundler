@@ -16,11 +16,23 @@ $ npm install https://github.com/simonhochrein/bundler
 
 # Benchmarks
 
-![Dry Run](https://raw.githubusercontent.com/simonhochrein/bundler/master/images/dry-run.png)
+Dry Run
 
-![Cache](https://raw.githubusercontent.com/simonhochrein/bundler/master/images/cache.png)
+| Bundler | Webpack | Parcel |
+| ------- | ------- | ------ |
+| 3.68s | 5.47s | 15.63s |
 
-![Watch](https://raw.githubusercontent.com/simonhochrein/bundler/master/images/watch.png)
+With Cache
+
+| Bundler | Webpack | Parcel |
+| ------- | ------- | ------ |
+| 1.15s | N/A | 2.11s |
+
+Watch
+
+| Bundler | Webpack | Parcel |
+| ------- | ------- | ------ |
+| 0.15s | 0.33s | 0.34s |
 
 # Contributing
 Contributions are welcome!
