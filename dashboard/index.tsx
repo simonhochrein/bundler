@@ -7,16 +7,13 @@ class App extends React.Component {
     render() {
         return (
             <>
-                <Navbar color="dark" dark expand="md" className="p-0 flex-md-nowrap">
-                    <NavbarBrand className={"col-md-2"} href="#">Bundler</NavbarBrand>
-                    <Input className={"w-100 form-control-dark"} />
+                <Navbar color="dark" dark expand="md">
+                    <NavbarBrand href="#">Bundler</NavbarBrand>
                 </Navbar>
                 <Container fluid>
                     <Row>
                         <Col md={2}>
-                            <Navbar className={"sidebar"} sticky={"sidebar"} light>
-                                <NavbarBrand>Test</NavbarBrand>
-                            </Navbar>
+                            <h1>Sidebar</h1>
                         </Col>
                         <Col md={10}></Col>
                     </Row>
