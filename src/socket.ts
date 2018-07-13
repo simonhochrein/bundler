@@ -1,32 +1,32 @@
-import { Worker } from 'cluster'
-import { EventEmitter } from 'events';
+import { Worker } from "cluster";
+import { EventEmitter } from "events";
 
-interface SocketMessage {
+interface ISocketMessage {
     type: string;
     data: any;
 }
 
 export class Socket extends EventEmitter {
-    public socket: any
+    public socket: any;
     constructor()
-    constructor(worker: Worker)
-    constructor(worker?: Worker) {
-        super()
-        if (worker) {
-            this.socket = worker;
+    constructor(WorkerProcess: Worker)
+    constructor(WorkerProcess?: Worker) {
+        super();
+        if (WorkerProcess) {
+            this.socket = WorkerProcess;
         } else {
-            this.socket = process
+            this.socket = process;
         }
-        this.socket.on("message", ({ type, data }: SocketMessage) => {
-            this.emit(type, ...data)
-        })
+        this.socket.on("message", (Message: ISocketMessage) => {
+            this.emit(Message.type, ...Message.data);
+        });
     }
-    send(type: string): void
-    send(type: string, ...args: any[]): void
-    send(arg1: any, ...arg2: any[]) {
+    send(Type: string): void;
+    send(Type: string, ...Arguments: any[]): void;
+    send(Arg1: any, ...Arg2: any[]) {
         this.socket.send({
-            type: arg1,
-            data: arg2
-        })
+            type: Arg1,
+            data: Arg2
+        });
     }
 }

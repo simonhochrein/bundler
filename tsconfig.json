@@ -6,10 +6,12 @@
         "lib": [
             "es6",
             "es2017"
-        ]
+        ],
+        "jsx": "react"
     },
     "exclude": [
         "test/**",
-        "rules/*"
+        "rules/*",
+        "dashboard"
     ]
 }

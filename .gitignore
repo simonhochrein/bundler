@@ -4,4 +4,4 @@ bootstrap
 .cache
 .build
 bundler.zip
-index.html
+./index.html

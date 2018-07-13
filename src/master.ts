@@ -1,12 +1,13 @@
 import { fork, Worker } from "cluster";
 import { Socket } from "./socket";
 import { dirname } from "path";
-import { writeFileSync, readFileSync, watch, existsSync, mkdirSync, exists } from "fs";
+import { writeFileSync, readFileSync, watch, existsSync, mkdirSync, exists, unlinkSync } from "fs";
 import * as Path from "path";
 import { Log } from "./log";
 // import "./dashboard/server";
 import { Generator } from "./generator";
 import * as Glob from "glob";
+import { ensureDirectoryExistence, ensureDirectory } from "./util";
 var chokidar = require("chokidar");
 // import { updateData } from "./dashboard/server";
 
@@ -21,15 +22,6 @@ interface IFile {
 }
 
 var workers = 8;
-
-function ensureDirectoryExistence(FilePath) {
-    var dirname = Path.dirname(FilePath);
-    if (existsSync(dirname)) {
-        return true;
-    }
-    ensureDirectoryExistence(dirname);
-    mkdirSync(dirname);
-}
 
 function debounce(Fn, Wait, Immediate?) {
     var timeout;
@@ -56,6 +48,7 @@ class App {
     public files: { [key: string]: IFile } = {};
     public bundles: string[] = [];
     public styles: { [key: string]: string } = {};
+    public outDir = Path.resolve("./.build");
 
     private _getName(FilePath) {
         return Path.relative(process.cwd(), FilePath);
@@ -93,6 +86,7 @@ class App {
     }
 
     public run(): void {
+        ensureDirectory(this.outDir);
         chokidar.watch(process.cwd(), { ignored: /((^|[\/\\])\..|node_modules)/ }).on("all", (Type, FilePath) => {
             if (Type == "change") {
                 if (this.files[this._getName(FilePath)]) {
@@ -109,6 +103,10 @@ class App {
         this.startWorkers();
         // var target = path.resolve(process.argv[2]);
         // this.entry = this._getName(target);
+        if (process.argv[2] == "config") {
+            require("./dashboard/server");
+            return;
+        }
         var files = [];
         for (var i = 2; i < process.argv.length; i++) {
             for (var file of Glob.sync(process.argv[i])) {
@@ -275,13 +273,16 @@ var app = new App();
 app.run();
 
 var onFinish = debounce(async () => {
-    for (var style in app.styles) {
-        var name = Path.basename(style, Path.extname(style));
-        writeFileSync(".build/" + name + ".bundle.css", app.styles[style]);
-    }
+    // for (var style in app.styles) {
+    //     var name = Path.basename(style, Path.extname(style));
+    //     writeFileSync("./.build/" + name + ".bundle.css", app.styles[style]);
+    // }
+    var manifest = {};
     for (var bundle of app.bundles) {
-        await new Generator(app, bundle).run();
+        var [cacheBusted, name] = await new Generator(app, bundle).run();
+        manifest[name] = cacheBusted;
     }
+    writeFileSync(app.outDir + "/manifest.json", JSON.stringify(manifest));
     Log.TimeEnd("Done in % seconds");
     // process.exit();
 }, 100, false);

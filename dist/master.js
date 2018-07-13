@@ -53,16 +53,9 @@ var log_1 = require("./log");
 // import "./dashboard/server";
 var generator_1 = require("./generator");
 var Glob = require("glob");
+var util_1 = require("./util");
 var chokidar = require("chokidar");
 var workers = 8;
-function ensureDirectoryExistence(FilePath) {
-    var dirname = Path.dirname(FilePath);
-    if (fs_1.existsSync(dirname)) {
-        return true;
-    }
-    ensureDirectoryExistence(dirname);
-    fs_1.mkdirSync(dirname);
-}
 function debounce(Fn, Wait, Immediate) {
     var timeout;
     return function () {
@@ -89,6 +82,7 @@ var App = /** @class */ (function () {
         this.files = {};
         this.bundles = [];
         this.styles = {};
+        this.outDir = Path.resolve("./.build");
         this.onSourceMap = function (FilePath, Source, SourceMap) {
             var file = _this.files[_this._getName(FilePath)];
             file.source = Source;
@@ -152,7 +146,7 @@ var App = /** @class */ (function () {
                     // }
                     if (_this._shouldCache(targetName)) {
                         var cached = Path.join(process.cwd(), ".cache", targetName) + ".json";
-                        ensureDirectoryExistence(cached);
+                        util_1.ensureDirectoryExistence(cached);
                         fs_1.writeFileSync(cached, JSON.stringify(target));
                     }
                 }
@@ -221,6 +215,7 @@ var App = /** @class */ (function () {
     };
     App.prototype.run = function () {
         var _this = this;
+        util_1.ensureDirectory(this.outDir);
         chokidar.watch(process.cwd(), { ignored: /((^|[\/\\])\..|node_modules)/ }).on("all", function (Type, FilePath) {
             if (Type == "change") {
                 if (_this.files[_this._getName(FilePath)]) {
@@ -237,6 +232,10 @@ var App = /** @class */ (function () {
         this.startWorkers();
         // var target = path.resolve(process.argv[2]);
         // this.entry = this._getName(target);
+        if (process.argv[2] == "config") {
+            require("./dashboard/server");
+            return;
+        }
         var files = [];
         for (var i = 2; i < process.argv.length; i++) {
             for (var _i = 0, _a = Glob.sync(process.argv[i]); _i < _a.length; _i++) {
@@ -301,27 +300,26 @@ exports.App = App;
 var app = new App();
 app.run();
 var onFinish = debounce(function () { return __awaiter(_this, void 0, void 0, function () {
-    var style, name, _i, _a, bundle;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var manifest, _i, _a, bundle, _b, cacheBusted, name;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                for (style in app.styles) {
-                    name = Path.basename(style, Path.extname(style));
-                    fs_1.writeFileSync(".build/" + name + ".bundle.css", app.styles[style]);
-                }
+                manifest = {};
                 _i = 0, _a = app.bundles;
-                _b.label = 1;
+                _c.label = 1;
             case 1:
                 if (!(_i < _a.length)) return [3 /*break*/, 4];
                 bundle = _a[_i];
                 return [4 /*yield*/, new generator_1.Generator(app, bundle).run()];
             case 2:
-                _b.sent();
-                _b.label = 3;
+                _b = _c.sent(), cacheBusted = _b[0], name = _b[1];
+                manifest[name] = cacheBusted;
+                _c.label = 3;
             case 3:
                 _i++;
                 return [3 /*break*/, 1];
             case 4:
+                fs_1.writeFileSync(app.outDir + "/manifest.json", JSON.stringify(manifest));
                 log_1.Log.TimeEnd("Done in % seconds");
                 return [2 /*return*/];
         }

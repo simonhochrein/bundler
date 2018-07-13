@@ -2,6 +2,8 @@ import { App, IFile } from "./master";
 import * as FileSystem from "fs";
 import * as Path from "path";
 import { SourceMapGenerator, SourceMapConsumer } from "source-map";
+import * as Cryptology from "crypto";
+import { ensureDirectoryExistence } from "./util";
 
 let header = `(function(files, entry) {
     window.global = window;
@@ -41,26 +43,38 @@ export class Generator {
     public currentLine = 30;
     public map: SourceMapGenerator;
     public bundle: string;
+    hash: Cryptology.Hash;
 
     constructor(AppInstance: App, Bundle: string) {
         this.bundle = Bundle;
         this.app = AppInstance;
     }
     public async run() {
-        return new Promise(Resolve => {
+        return new Promise<string[]>(Resolve => {
             var name = Path.basename(this.bundle, Path.extname(this.bundle));
-
+            this.hash = Cryptology.createHash("md5");
             this.map = new SourceMapGenerator({
                 file: name + ".bundle.js"
             });
-            if (!FileSystem.existsSync(".build")) {
-                FileSystem.mkdirSync(".build");
+            // if (!FileSystem.existsSync(".build")) {
+            //     FileSystem.mkdirSync(".build");
+            // }
+            ensureDirectoryExistence(this.app.outDir);
+            // FileSystem.mkdirSync(this.app.outDir);
+            for (var key of FileSystem.readdirSync(this.app.outDir)) {
+                if (key.indexOf(name + ".") == 0) {
+                    FileSystem.unlinkSync(Path.join(this.app.outDir, key));
+                }
             }
-            this.fileStream = FileSystem.createWriteStream(".build/" + name + ".bundle.js");
+            this.fileStream = FileSystem.createWriteStream(this.app.outDir + "/" + name + ".bundle.js");
             this.fileStream.write(header);
+            this.hash.write(header);
             this.searchDependencies(this.bundle);
             this.fileStream.on("finish", () => {
-                Resolve();
+                // console.log(this.hash.digest("hex"));
+                let hash = this.hash.digest("hex");
+                FileSystem.renameSync(this.app.outDir + "/" + name + ".bundle.js", this.app.outDir + "/" + name + "." + hash + ".js");
+                Resolve([name + "." + hash + ".js", name]);
             });
             this.fileStream.write(`\n}, "${this.bundle}")\n`);
             this.fileStream.write("//@ sourceMappingURL=data:application/json;charset=utf-8;base64," + Buffer.from(this.map.toString()).toString("base64"));
@@ -92,9 +106,9 @@ export class Generator {
             });
         }
         this.currentLine += lines + 2;
-
-        this.fileStream.write(
-            `"${FilePath}": [function(require, exports, module) {\n${this.app.files[FilePath].contents}\n}, ${JSON.stringify(this.app.files[FilePath].dependencies)}],\n`);
+        var content = `"${FilePath}": [function(require, exports, module) {\n${this.app.files[FilePath].contents}\n}, ${JSON.stringify(this.app.files[FilePath].dependencies)}],\n`;
+        this.fileStream.write(content);
+        this.hash.write(content);
         Object.values(this.app.files[FilePath].dependencies).forEach((Dependency: string) => {
             if (!~this.files.indexOf(Dependency)) {
                 this.files.push(Dependency);

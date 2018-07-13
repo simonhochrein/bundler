@@ -8,11 +8,12 @@ import { JSONResolver } from "./resolvers/json";
 import { SCSSResolver } from "./resolvers/scss";
 import { EJSResolver } from "./resolvers/ejs";
 import { ImageResolver } from "./resolvers/image";
+import { CSSResolver } from "./resolvers/css";
 
 export class Bundler {
     static Queue = 0;
     static SocketInst = new Socket();
-    static Resolvers = [new JSResolver, new TSResolver, new JSONResolver, new SCSSResolver, new EJSResolver, new ImageResolver];
+    static Resolvers = [new JSResolver, new CSSResolver, new TSResolver, new JSONResolver, new SCSSResolver, new EJSResolver, new ImageResolver];
 
     static IsDone() {
         if (this.Queue == 0) {

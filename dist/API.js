@@ -10,6 +10,7 @@ var json_1 = require("./resolvers/json");
 var scss_1 = require("./resolvers/scss");
 var ejs_1 = require("./resolvers/ejs");
 var image_1 = require("./resolvers/image");
+var css_1 = require("./resolvers/css");
 var Bundler = /** @class */ (function () {
     function Bundler() {
     }
@@ -84,7 +85,7 @@ var Bundler = /** @class */ (function () {
     };
     Bundler.Queue = 0;
     Bundler.SocketInst = new socket_1.Socket();
-    Bundler.Resolvers = [new javascript_1.JSResolver, new typescript_1.TSResolver, new json_1.JSONResolver, new scss_1.SCSSResolver, new ejs_1.EJSResolver, new image_1.ImageResolver];
+    Bundler.Resolvers = [new javascript_1.JSResolver, new css_1.CSSResolver, new typescript_1.TSResolver, new json_1.JSONResolver, new scss_1.SCSSResolver, new ejs_1.EJSResolver, new image_1.ImageResolver];
     return Bundler;
 }());
 exports.Bundler = Bundler;

@@ -13,28 +13,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var events_1 = require("events");
 var Socket = /** @class */ (function (_super) {
     __extends(Socket, _super);
-    function Socket(worker) {
+    function Socket(WorkerProcess) {
         var _this = _super.call(this) || this;
-        if (worker) {
-            _this.socket = worker;
+        if (WorkerProcess) {
+            _this.socket = WorkerProcess;
         }
         else {
             _this.socket = process;
         }
-        _this.socket.on("message", function (_a) {
-            var type = _a.type, data = _a.data;
-            _this.emit.apply(_this, [type].concat(data));
+        _this.socket.on("message", function (Message) {
+            _this.emit.apply(_this, [Message.type].concat(Message.data));
         });
         return _this;
     }
-    Socket.prototype.send = function (arg1) {
-        var arg2 = [];
+    Socket.prototype.send = function (Arg1) {
+        var Arg2 = [];
         for (var _i = 1; _i < arguments.length; _i++) {
-            arg2[_i - 1] = arguments[_i];
+            Arg2[_i - 1] = arguments[_i];
         }
         this.socket.send({
-            type: arg1,
-            data: arg2
+            type: Arg1,
+            data: Arg2
         });
     };
     return Socket;
