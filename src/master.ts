@@ -4,7 +4,7 @@ import { dirname } from "path";
 import { writeFileSync, readFileSync, watch, existsSync, mkdirSync, exists } from "fs";
 import * as Path from "path";
 import { Log } from "./log";
-import "./dashboard/server";
+// import "./dashboard/server";
 import { Generator } from "./generator";
 import * as Glob from "glob";
 var chokidar = require("chokidar");

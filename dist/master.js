@@ -50,7 +50,7 @@ var path_1 = require("path");
 var fs_1 = require("fs");
 var Path = require("path");
 var log_1 = require("./log");
-require("./dashboard/server");
+// import "./dashboard/server";
 var generator_1 = require("./generator");
 var Glob = require("glob");
 var chokidar = require("chokidar");

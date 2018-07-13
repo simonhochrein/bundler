@@ -14,6 +14,14 @@ or
 $ npm install https://github.com/simonhochrein/bundler
 ```
 
+# Running
+
+```bash
+$ bundler ./path/to/files/*.js
+```
+
+More options comming soon!
+
 # Benchmarks
 
 Dry Run
