@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var resolver_1 = require("./resolver");
 var path_1 = require("path");
 var fs_1 = require("fs");
-var API_1 = require("../API");
+var Bundler_1 = require("../Bundler");
 var JSONResolver = /** @class */ (function (_super) {
     __extends(JSONResolver, _super);
     function JSONResolver() {
@@ -23,7 +23,7 @@ var JSONResolver = /** @class */ (function (_super) {
         return path_1.extname(FilePath) == ".json";
     };
     JSONResolver.prototype.crawl = function (FilePath, Done) {
-        API_1.Bundler.SendFileContents(FilePath, "module.exports = " + fs_1.readFileSync(FilePath, "utf8"));
+        Bundler_1.Bundler.SendFileContents(FilePath, "module.exports = " + fs_1.readFileSync(FilePath, "utf8"));
         Done();
     };
     return JSONResolver;

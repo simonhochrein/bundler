@@ -19,6 +19,9 @@ var Bundler = /** @class */ (function () {
             this.SocketInst.send("done");
         }
     };
+    Bundler.OnOptions = function (Listener) {
+        this.SocketInst.on("options", Listener);
+    };
     Bundler.SendFileContents = function (FilePath, Contents) {
         this.SocketInst.send("fileContents", FilePath, Contents);
     };
@@ -58,13 +61,18 @@ var Bundler = /** @class */ (function () {
             if (ResolveError) {
                 log_1.Log.Error("Cannot find module " + FileName + " from " + ParentFile);
                 _this.SocketInst.send("error");
-                return;
             }
             if (FilePath && FilePath[0] == "/") {
                 _this.SocketInst.send("resolved", FileName, FilePath, ParentFile);
             }
-            else if (FilePath[0] != "/" && builtins_1.BUILT_IN[FilePath]) {
-                _this.SocketInst.send("resolved", FileName, builtins_1.BUILT_IN[FilePath], ParentFile);
+            else if (resolve.isCore(FilePath)) {
+                if (builtins_1.BUILT_IN[FilePath]) {
+                    _this.SocketInst.send("resolved", FileName, builtins_1.BUILT_IN[FilePath], ParentFile);
+                }
+                else {
+                    log_1.Log.Error("Cannot find module " + FileName + " from " + ParentFile);
+                    _this.SocketInst.send("error");
+                }
             }
             _this.DecrementQueue();
         });

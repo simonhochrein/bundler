@@ -4,6 +4,7 @@ import * as Path from "path";
 import { SourceMapGenerator, SourceMapConsumer } from "source-map";
 import * as Cryptology from "crypto";
 import { ensureDirectoryExistence } from "./util";
+import { Options } from "./Options";
 
 let header = `(function(files, entry) {
     window.global = window;
@@ -44,15 +45,16 @@ export class Generator {
     public map: SourceMapGenerator;
     public bundle: string;
     hash: Cryptology.Hash;
+    private _cacheBuster: boolean;
 
     constructor(AppInstance: App, Bundle: string) {
         this.bundle = Bundle;
         this.app = AppInstance;
+        this._cacheBuster = Options.Get("Bundler.CacheBuster");
     }
     public async run() {
         return new Promise<string[]>(Resolve => {
             var name = Path.basename(this.bundle, Path.extname(this.bundle));
-            this.hash = Cryptology.createHash("md5");
             this.map = new SourceMapGenerator({
                 file: name + ".bundle.js"
             });
@@ -68,13 +70,20 @@ export class Generator {
             }
             this.fileStream = FileSystem.createWriteStream(this.app.outDir + "/" + name + ".bundle.js");
             this.fileStream.write(header);
-            this.hash.write(header);
+            if (this._cacheBuster) {
+                this.hash = Cryptology.createHash("md5");
+                this.hash.write(header);
+            }
             this.searchDependencies(this.bundle);
             this.fileStream.on("finish", () => {
                 // console.log(this.hash.digest("hex"));
-                let hash = this.hash.digest("hex");
-                FileSystem.renameSync(this.app.outDir + "/" + name + ".bundle.js", this.app.outDir + "/" + name + "." + hash + ".js");
-                Resolve([name + "." + hash + ".js", name]);
+                if (this._cacheBuster) {
+                    let hash = this.hash.digest("hex");
+                    FileSystem.renameSync(this.app.outDir + "/" + name + ".bundle.js", this.app.outDir + "/" + name + "." + hash + ".js");
+                    Resolve([name + "." + hash + ".js", name]);
+                } else {
+                    Resolve();
+                }
             });
             this.fileStream.write(`\n}, "${this.bundle}")\n`);
             this.fileStream.write("//@ sourceMappingURL=data:application/json;charset=utf-8;base64," + Buffer.from(this.map.toString()).toString("base64"));
@@ -83,6 +92,9 @@ export class Generator {
     }
 
     public searchDependencies(FilePath: string) {
+        if (!this.app.files[FilePath]) {
+            console.log(FilePath);
+        }
         var lines = this.app.files[FilePath].contents.split("\n").length;
         if (!this.app.files[FilePath].sourceMap) {
             this.map.setSourceContent(FilePath, this.app.files[FilePath].contents);
@@ -108,7 +120,9 @@ export class Generator {
         this.currentLine += lines + 2;
         var content = `"${FilePath}": [function(require, exports, module) {\n${this.app.files[FilePath].contents}\n}, ${JSON.stringify(this.app.files[FilePath].dependencies)}],\n`;
         this.fileStream.write(content);
-        this.hash.write(content);
+        if (this._cacheBuster) {
+            this.hash.write(content);
+        }
         Object.values(this.app.files[FilePath].dependencies).forEach((Dependency: string) => {
             if (!~this.files.indexOf(Dependency)) {
                 this.files.push(Dependency);

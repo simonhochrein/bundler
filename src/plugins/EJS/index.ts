@@ -1,8 +1,8 @@
-import { AbstractResolver } from "./resolver";
+import { AbstractResolver } from "../../resolvers/resolver";
 import { extname } from "path";
 import { readFileSync } from "fs";
 import { compile } from "ejs";
-import { Bundler } from "../API";
+import { Bundler } from "../../Bundler";
 
 export class EJSResolver extends AbstractResolver {
     isFor(FilePath: string): boolean {

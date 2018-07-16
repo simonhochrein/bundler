@@ -2,23 +2,25 @@ import { Socket } from "./socket";
 import { Log } from "./log";
 import * as resolve from "resolve";
 import { BUILT_IN } from "./builtins";
-import { JSResolver } from "./resolvers/javascript";
-import { TSResolver } from "./resolvers/typescript";
-import { JSONResolver } from "./resolvers/json";
-import { SCSSResolver } from "./resolvers/scss";
-import { EJSResolver } from "./resolvers/ejs";
-import { ImageResolver } from "./resolvers/image";
-import { CSSResolver } from "./resolvers/css";
+import { PluginManager } from "./PluginManager";
 
 export class Bundler {
     static Queue = 0;
     static SocketInst = new Socket();
-    static Resolvers = [new JSResolver, new CSSResolver, new TSResolver, new JSONResolver, new SCSSResolver, new EJSResolver, new ImageResolver];
+    static Resolvers = [];
+    static Extensions = [];
 
     static IsDone() {
         if (this.Queue == 0) {
             this.SocketInst.send("done");
         }
+    }
+
+    static OnOptions(Listener) {
+        this.SocketInst.on("options", Listener);
+    }
+    static OnPlugin(Listener) {
+        this.SocketInst.on("plugin", Listener);
     }
     static SendFileContents(FilePath, Contents) {
         this.SocketInst.send("fileContents", FilePath, Contents);
@@ -54,16 +56,20 @@ export class Bundler {
     }
     static Resolve(FileName: string, BaseDirectory: string, ParentFile: string) {
         this.IncrementQueue();
-        resolve(FileName, { basedir: BaseDirectory, extensions: [".js", ".ts", ".tsx", ".scss", ".ejs"] }, (ResolveError, FilePath, Package) => {
+        resolve(FileName, { basedir: BaseDirectory, extensions: this.Extensions }, (ResolveError, FilePath) => {
             if (ResolveError) {
                 Log.Error(`Cannot find module ${FileName} from ${ParentFile}`);
                 this.SocketInst.send("error");
-                return;
             }
             if (FilePath && FilePath[0] == "/") {
                 this.SocketInst.send("resolved", FileName, FilePath, ParentFile);
-            } else if (FilePath[0] != "/" && BUILT_IN[FilePath]) {
-                this.SocketInst.send("resolved", FileName, BUILT_IN[FilePath], ParentFile);
+            } else if (resolve.isCore(FilePath)) {
+                if (BUILT_IN[FilePath]) {
+                    this.SocketInst.send("resolved", FileName, BUILT_IN[FilePath], ParentFile);
+                } else {
+                    Log.Error(`Cannot find module ${FileName} from ${ParentFile}`);
+                    this.SocketInst.send("error");
+                }
             }
             this.DecrementQueue();
         });
@@ -82,3 +88,9 @@ export class Bundler {
         }
     }
 }
+
+Bundler.OnPlugin(Name => {
+    var plugin = PluginManager.LoadPluginWorker(Name);
+    Bundler.Extensions.push(...plugin.Extensions);
+    Bundler.Resolvers.push(...(plugin.Resolvers.map(Resolver => new Resolver())));
+});

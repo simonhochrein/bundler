@@ -1,7 +1,8 @@
-import { AbstractResolver } from "./resolver";
+import { AbstractResolver } from "../../resolvers/resolver";
 import { extname } from "path";
 import * as sass from "node-sass";
-import { Bundler } from "../API";
+import { Bundler } from "../../Bundler";
+import { Options } from "../../Options";
 
 export class SCSSResolver extends AbstractResolver {
     isFor(FilePath: string): boolean {
@@ -10,13 +11,14 @@ export class SCSSResolver extends AbstractResolver {
     crawl(FilePath: string, Done: () => void): void {
         sass.render({
             file: FilePath,
-            // sourceMap: true,
-            // outFile: 'bundle.js'
+            sourceMapEmbed: Options.Get("SASS.SourceMap"),
+            sourceMapContents: true,
+            outFile: "bundle.js"
         }, function (SassError, Result) {
             SassError && console.log(SassError);
             // console.log(result.map.toString());
             // Bundler.SendStyle(FilePath, Result.css.toString());
-            Bundler.SendFileContents(FilePath, `var s = document.createElement("style");s.appendChild(document.createTextNode("${Result.css.toString().replace(/"/g, "\\\"").replace(/\n/g, "\\n")}"));document.head.appendChild(s);`);
+            Bundler.SendFileContents(FilePath, `var s = document.createElement("style");s.appendChild(document.createTextNode(${JSON.stringify(Result.css.toString())}));document.head.appendChild(s);`);
             Done();
         });
     }

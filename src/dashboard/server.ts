@@ -2,30 +2,26 @@ import * as express from "express";
 import { join } from "path";
 import { Log } from "../log";
 import * as ChildProcess from "child_process";
-import * as Manifest from "../../dashboard/.build/manifest.json";
+import { Options } from "../Options";
+import * as Readline from "readline";
 
 let files = {};
 let names = {};
 
 let app = express();
-app.set("view engine", "ejs");
 
-app.use("/popper.js", (Request, Response) => {
-    Response.sendFile(join(__dirname, "../../node_modules/popper.js/dist/umd/popper.min.js"));
+app.get("/options", (Request, Response) => {
+    Response.json(Options.GetOptions());
 });
 
-app.use("/chart.js", (Request, Response) => {
-    Response.sendFile(join(__dirname, "../../node_modules/chart.js/dist/Chart.bundle.min.js"));
+app.post("/options/:name/:value", (Request, Response) => {
+    Options.Set(Request.params.name, Request.params.value);
+    Options.Save();
+    Response.json(Options.GetOptions());
 });
-
-app.use("/jquery.min.js", (Request, Response) => {
-    Response.sendFile(join(__dirname, "../../node_modules/jquery/dist/jquery.min.js"));
-});
-
-app.use("/bootstrap", express.static(join(__dirname, "../../node_modules/bootstrap/dist")));
 
 app.get("/index.js", (Request, Response) => {
-    Response.sendFile(join(__dirname, join("../../dashboard/.build", Manifest["index"])));
+    Response.sendFile(join(__dirname, "../../.build/index.bundle.js"));
 });
 
 app.get("/", (Request, Response) => {
@@ -33,11 +29,23 @@ app.get("/", (Request, Response) => {
 });
 
 let server = app.listen(8080, () => {
-    Log.Info("Listening on http://localhost:" + server.address()["port"]);
-    ChildProcess.execSync("open http://localhost:" + server.address()["port"]);
+    // Log.Info("Listening on http://localhost:" + server.address()["port"]);
+    // ChildProcess.execSync("open http://localhost:" + server.address()["port"]);
 });
 
 export function updateData(Files, FileNames) {
     files = Files;
     names = FileNames;
+}
+
+Readline.cursorTo(process.stdout, 0, 0);
+Readline.clearScreenDown(process.stdout);
+
+export function updateWorkers(Workers) {
+    var status = "";
+    for (var key in Workers) {
+        status += (Workers[key] ? "●".green : "●".red) + " ";
+    }
+    Readline.cursorTo(process.stdout, 0, 0);
+    process.stdout.write(status);
 }

@@ -1,6 +1,6 @@
-import { AbstractResolver } from "./resolver";
+import { AbstractResolver } from "../../resolvers/resolver";
 import { extname } from "path";
-import { Bundler } from "../API";
+import { Bundler } from "../../Bundler";
 import * as FileSystem from "fs";
 
 export class CSSResolver extends AbstractResolver {

@@ -14,7 +14,7 @@ var path_1 = require("path");
 var fs_1 = require("fs");
 var acorn_1 = require("acorn");
 var resolver_1 = require("./resolver");
-var API_1 = require("../API");
+var Bundler_1 = require("../Bundler");
 var walk = require("acorn/dist/walk");
 var JSResolver = /** @class */ (function (_super) {
     __extends(JSResolver, _super);
@@ -28,13 +28,13 @@ var JSResolver = /** @class */ (function (_super) {
         var file = fs_1.readFileSync(FilePath, "utf8");
         // transform(file, {}, (err, res) => {
         //     onFileContents(filepath, res.code);
-        API_1.Bundler.SendFileContents(FilePath, file);
+        Bundler_1.Bundler.SendFileContents(FilePath, file);
         try {
             walk.simple(acorn_1.parse(file), {
                 CallExpression: function (RequireNode) {
                     if (RequireNode.callee.name == "require") {
                         if (RequireNode.arguments[0] && RequireNode.arguments[0].value) {
-                            API_1.Bundler.SendDependency(RequireNode.arguments[0].value, FilePath);
+                            Bundler_1.Bundler.SendDependency(RequireNode.arguments[0].value, FilePath);
                         }
                     }
                 }

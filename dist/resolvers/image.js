@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var resolver_1 = require("./resolver");
 var path_1 = require("path");
 var fs_1 = require("fs");
-var API_1 = require("../API");
+var Bundler_1 = require("../Bundler");
 var ImageResolver = /** @class */ (function (_super) {
     __extends(ImageResolver, _super);
     function ImageResolver() {
@@ -23,7 +23,7 @@ var ImageResolver = /** @class */ (function (_super) {
         return path_1.extname(FilePath) == ".png";
     };
     ImageResolver.prototype.crawl = function (FilePath, Done) {
-        API_1.Bundler.SendFileContents(FilePath, "module.exports = 'data:image/png;base64," + fs_1.readFileSync(FilePath).toString("base64") + "';");
+        Bundler_1.Bundler.SendFileContents(FilePath, "module.exports = 'data:image/png;base64," + fs_1.readFileSync(FilePath).toString("base64") + "';");
         Done();
     };
     return ImageResolver;

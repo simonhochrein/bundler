@@ -15,7 +15,7 @@ var FileSystem = require("fs");
 var acorn_1 = require("acorn");
 var resolver_1 = require("./resolver");
 var TypeScript = require("typescript");
-var API_1 = require("../API");
+var Bundler_1 = require("../Bundler");
 var walk = require("acorn/dist/walk");
 var TSResolver = /** @class */ (function (_super) {
     __extends(TSResolver, _super);
@@ -38,14 +38,14 @@ var TSResolver = /** @class */ (function (_super) {
         });
         // transform(file, {}, (err, res) => {
         //     onFileContents(filepath, res.code);
-        API_1.Bundler.SendFileContents(FilePath, result.outputText);
-        API_1.Bundler.SendSourceMap(FilePath, file, result.sourceMapText);
+        Bundler_1.Bundler.SendFileContents(FilePath, result.outputText);
+        Bundler_1.Bundler.SendSourceMap(FilePath, file, result.sourceMapText);
         try {
             walk.simple(acorn_1.parse(result.outputText), {
                 CallExpression: function (RequireCall) {
                     if (RequireCall.callee.name == "require") {
                         if (RequireCall.arguments[0] && RequireCall.arguments[0].value) {
-                            API_1.Bundler.SendDependency(RequireCall.arguments[0].value, FilePath);
+                            Bundler_1.Bundler.SendDependency(RequireCall.arguments[0].value, FilePath);
                         }
                     }
                 }

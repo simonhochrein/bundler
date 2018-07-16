@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var resolver_1 = require("./resolver");
 var path_1 = require("path");
 var sass = require("node-sass");
-var API_1 = require("../API");
+var Bundler_1 = require("../Bundler");
 var SCSSResolver = /** @class */ (function (_super) {
     __extends(SCSSResolver, _super);
     function SCSSResolver() {
@@ -29,7 +29,7 @@ var SCSSResolver = /** @class */ (function (_super) {
             SassError && console.log(SassError);
             // console.log(result.map.toString());
             // Bundler.SendStyle(FilePath, Result.css.toString());
-            API_1.Bundler.SendFileContents(FilePath, "var s = document.createElement(\"style\");s.appendChild(document.createTextNode(\"" + Result.css.toString().replace(/"/g, "\\\"").replace(/\n/g, "\\n") + "\"));document.head.appendChild(s);");
+            Bundler_1.Bundler.SendFileContents(FilePath, "var s = document.createElement(\"style\");s.appendChild(document.createTextNode(\"" + Result.css.toString().replace(/"/g, "\\\"").replace(/\n/g, "\\n") + "\"));document.head.appendChild(s);");
             Done();
         });
     };

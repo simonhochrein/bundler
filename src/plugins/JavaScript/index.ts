@@ -1,8 +1,8 @@
 import { extname } from "path";
 import { readFileSync } from "fs";
 import { parse } from "acorn";
-import { AbstractResolver } from "./resolver";
-import { Bundler } from "../API";
+import { AbstractResolver } from "../../resolvers/resolver";
+import { Bundler } from "../../Bundler";
 
 
 let walk = require("acorn/dist/walk");

@@ -1,7 +1,7 @@
 import { AbstractResolver } from "./resolver";
 import { extname } from "path";
 import { readFileSync } from "fs";
-import { Bundler } from "../API";
+import { Bundler } from "../Bundler";
 
 export class ImageResolver extends AbstractResolver {
     isFor(FilePath: string): boolean {

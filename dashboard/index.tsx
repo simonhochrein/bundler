@@ -1,25 +1,76 @@
 import * as React from "react";
 import "./index.scss";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, NavbarBrand, Input, Container, Row, Col } from "reactstrap";
+import { IOption, IOptionType } from "../src/Types";
 
-class App extends React.Component {
+class App extends React.Component<any, { groups: { [key: string]: (IOption & { Value: any })[] } }> {
+    constructor(Props) {
+        super(Props);
+        this.state = {
+            groups: {}
+        };
+    }
+    renderOption(Option: IOption & { Value: any }) {
+        switch (Option.Type) {
+            case IOptionType.String:
+                return (
+                    <>
+                        <label>{Option.ID} {Option.Name}</label>
+                        <input value={Option.Value ? Option.Value : Option.Default} name={Option.ID} onChange={this.onChange} />
+                    </>
+                );
+            case IOptionType.Number:
+                return (
+                    <>
+                        <label>{Option.ID} {Option.Name}</label>
+                        <input value={Option.Value ? Option.Value : Option.Default} type="number" name={Option.ID} onChange={this.onChange} />
+                    </>
+                );
+            case IOptionType.Boolean:
+                return (
+                    <>
+                        <label>{Option.Name}</label>
+                        <input checked={Option.Value} type="checkbox" name={Option.ID} onChange={this.onChange} />
+                    </>
+                );
+        }
+    }
     render() {
         return (
-            <>
-                <Navbar color="dark" dark expand="md">
-                    <NavbarBrand href="#">Bundler</NavbarBrand>
-                </Navbar>
-                <Container fluid>
-                    <Row>
-                        <Col md={2}>
-                            <h1>Sidebar</h1>
-                        </Col>
-                        <Col md={10}></Col>
-                    </Row>
-                </Container>
-            </>
+            <ul>
+                {Object.keys(this.state.groups).map((Name, Key1) => (
+                    <li key={Key1}>
+                        <h1>{Name}</h1>
+                        <ul>
+                            {this.state.groups[Name].map((Option, Key2) => (
+                                <li key={Key2}>
+                                    {this.renderOption(Option)}
+                                </li>
+                            ))}
+                        </ul>
+                    </li>
+                ))}
+            </ul>
         );
+    }
+    onChange = async (ChangeEvent) => {
+        // console.log(ChangeEvent.target.value, ChangeEvent.target.name);
+        if ("checked" in ChangeEvent.target) {
+            this.processOptions(await (await fetch("/options/" + ChangeEvent.target.name + "/" + ChangeEvent.target.checked, { method: "POST" })).json());
+        } else {
+            this.processOptions(await (await fetch("/options/" + ChangeEvent.target.name + "/" + ChangeEvent.target.value, { method: "POST" })).json());
+        }
+    }
+    async componentDidMount() {
+        var req = await fetch("/options");
+        var res = await req.json() as (IOption & { Value: any })[];
+        this.processOptions(res);
+    }
+    processOptions(Options) {
+        var groups = {};
+        for (var option of Options) {
+            groups[option.ID.split(".")[0]] ? groups[option.ID.split(".")[0]].push(option) : groups[option.ID.split(".")[0]] = [option];
+        }
+        this.setState({ groups });
     }
 }
 

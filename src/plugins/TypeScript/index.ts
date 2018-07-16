@@ -1,9 +1,9 @@
 import { extname } from "path";
 import * as FileSystem from "fs";
 import { parse } from "acorn";
-import { AbstractResolver } from "./resolver";
+import { AbstractResolver } from "../../resolvers/resolver";
 import * as TypeScript from "typescript";
-import { Bundler } from "../API";
+import { Bundler } from "../../Bundler";
 
 
 let walk = require("acorn/dist/walk");

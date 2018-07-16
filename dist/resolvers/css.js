@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var resolver_1 = require("./resolver");
 var path_1 = require("path");
-var API_1 = require("../API");
+var Bundler_1 = require("../Bundler");
 var FileSystem = require("fs");
 var CSSResolver = /** @class */ (function (_super) {
     __extends(CSSResolver, _super);
@@ -23,7 +23,7 @@ var CSSResolver = /** @class */ (function (_super) {
         return path_1.extname(FilePath) == ".css";
     };
     CSSResolver.prototype.crawl = function (FilePath, Done) {
-        API_1.Bundler.SendFileContents(FilePath, "var s = document.createElement(\"style\");s.appendChild(document.createTextNode(\"" + FileSystem.readFileSync(FilePath, "utf8").replace(/"/g, "\\\"").replace(/\n/g, "\\n") + "\"));document.head.appendChild(s);");
+        Bundler_1.Bundler.SendFileContents(FilePath, "var s = document.createElement(\"style\");s.appendChild(document.createTextNode(\"" + FileSystem.readFileSync(FilePath, "utf8").replace(/"/g, "\\\"").replace(/\n/g, "\\n") + "\"));document.head.appendChild(s);");
         Done();
     };
     return CSSResolver;

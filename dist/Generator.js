@@ -40,6 +40,7 @@ var Path = require("path");
 var source_map_1 = require("source-map");
 var Cryptology = require("crypto");
 var util_1 = require("./util");
+var Options_1 = require("./Options");
 var header = "(function(files, entry) {\n    window.global = window;\n    global.process = {env: {NODE_ENV:\"development\"}, cwd: function(){return '/'}};\n    window.cache = {};\n    var exportGetter = function() {\n        return this;\n    }\n    var require = function(file, name) {\n        var module = {exports: {}};\n        if(cache[files[file][1][name]]) {\n            return cache[files[file][1][name]].exports;\n        }else {\n            var newfile = files[file][1][name];\n            if(files[newfile]) {\n                cache[newfile] = {exports: {}}\n                files[newfile][0](require.bind(null, newfile), cache[newfile].exports, cache[newfile]);\n        \n                if(cache[newfile].exports && cache[newfile].exports.hasOwnProperty && !cache[newfile].exports.hasOwnProperty(\"default\") && Object.isExtensible(cache[newfile].exports)) {\n                    Object.defineProperty(cache[newfile].exports, \"default\", {get:exportGetter})\n                }\n\n                return cache[newfile].exports;\n            } else {\n                throw new Error(\"Cannot find module \"+name+\" from \"+file);\n            }\n        }\n    }\n    files[entry][0](require.bind(null, entry), {}, {});\n})({\n";
 var Generator = /** @class */ (function () {
     function Generator(AppInstance, Bundle) {
@@ -47,6 +48,7 @@ var Generator = /** @class */ (function () {
         this.currentLine = 30;
         this.bundle = Bundle;
         this.app = AppInstance;
+        this._cacheBuster = Options_1.Options.Get("Bundler.CacheBuster");
     }
     Generator.prototype.run = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -54,7 +56,6 @@ var Generator = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (Resolve) {
                         var name = Path.basename(_this.bundle, Path.extname(_this.bundle));
-                        _this.hash = Cryptology.createHash("md5");
                         _this.map = new source_map_1.SourceMapGenerator({
                             file: name + ".bundle.js"
                         });
@@ -71,13 +72,21 @@ var Generator = /** @class */ (function () {
                         }
                         _this.fileStream = FileSystem.createWriteStream(_this.app.outDir + "/" + name + ".bundle.js");
                         _this.fileStream.write(header);
-                        _this.hash.write(header);
+                        if (_this._cacheBuster) {
+                            _this.hash = Cryptology.createHash("md5");
+                            _this.hash.write(header);
+                        }
                         _this.searchDependencies(_this.bundle);
                         _this.fileStream.on("finish", function () {
                             // console.log(this.hash.digest("hex"));
-                            var hash = _this.hash.digest("hex");
-                            FileSystem.renameSync(_this.app.outDir + "/" + name + ".bundle.js", _this.app.outDir + "/" + name + "." + hash + ".js");
-                            Resolve([name + "." + hash + ".js", name]);
+                            if (_this._cacheBuster) {
+                                var hash = _this.hash.digest("hex");
+                                FileSystem.renameSync(_this.app.outDir + "/" + name + ".bundle.js", _this.app.outDir + "/" + name + "." + hash + ".js");
+                                Resolve([name + "." + hash + ".js", name]);
+                            }
+                            else {
+                                Resolve();
+                            }
                         });
                         _this.fileStream.write("\n}, \"" + _this.bundle + "\")\n");
                         _this.fileStream.write("//@ sourceMappingURL=data:application/json;charset=utf-8;base64," + Buffer.from(_this.map.toString()).toString("base64"));
@@ -88,6 +97,9 @@ var Generator = /** @class */ (function () {
     };
     Generator.prototype.searchDependencies = function (FilePath) {
         var _this = this;
+        if (!this.app.files[FilePath]) {
+            console.log(FilePath);
+        }
         var lines = this.app.files[FilePath].contents.split("\n").length;
         if (!this.app.files[FilePath].sourceMap) {
             this.map.setSourceContent(FilePath, this.app.files[FilePath].contents);
@@ -113,7 +125,9 @@ var Generator = /** @class */ (function () {
         this.currentLine += lines + 2;
         var content = "\"" + FilePath + "\": [function(require, exports, module) {\n" + this.app.files[FilePath].contents + "\n}, " + JSON.stringify(this.app.files[FilePath].dependencies) + "],\n";
         this.fileStream.write(content);
-        this.hash.write(content);
+        if (this._cacheBuster) {
+            this.hash.write(content);
+        }
         Object.values(this.app.files[FilePath].dependencies).forEach(function (Dependency) {
             if (!~_this.files.indexOf(Dependency)) {
                 _this.files.push(Dependency);

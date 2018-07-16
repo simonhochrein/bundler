@@ -14,7 +14,7 @@ var resolver_1 = require("./resolver");
 var path_1 = require("path");
 var fs_1 = require("fs");
 var ejs_1 = require("ejs");
-var API_1 = require("../API");
+var Bundler_1 = require("../Bundler");
 var EJSResolver = /** @class */ (function (_super) {
     __extends(EJSResolver, _super);
     function EJSResolver() {
@@ -25,7 +25,7 @@ var EJSResolver = /** @class */ (function (_super) {
     };
     EJSResolver.prototype.crawl = function (FilePath, Done) {
         var compiled = ejs_1.compile(fs_1.readFileSync(FilePath, "utf8"), { client: true, filename: FilePath, root: process.cwd() });
-        API_1.Bundler.SendFileContents(FilePath, compiled.toString() + "\nmodule.exports = anonymous");
+        Bundler_1.Bundler.SendFileContents(FilePath, compiled.toString() + "\nmodule.exports = anonymous");
         Done();
     };
     return EJSResolver;

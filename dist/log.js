@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("colors");
+var Readline = require("readline");
 var timer = null;
 var Log = /** @class */ (function () {
     function Log() {
@@ -9,10 +10,14 @@ var Log = /** @class */ (function () {
         console.log(Message.red);
     };
     Log.Info = function (Message) {
-        console.log(Message.blue);
+        Readline.cursorTo(process.stdout, 0, 1);
+        Readline.clearLine(process.stdout, 1);
+        process.stdout.write(Message.blue);
     };
     Log.Success = function (Message) {
-        console.log(Message.green);
+        Readline.cursorTo(process.stdout, 0, 1);
+        Readline.clearLine(process.stdout, 1);
+        process.stdout.write(Message.green);
     };
     Log.Time = function () {
         timer = Date.now();
