@@ -11,11 +11,12 @@ var PluginManager = /** @class */ (function () {
     };
     PluginManager.LoadPluginWorker = function (Name) {
         try {
-            return require(process.cwd() + "/.bundler/plugins/" + Name + "/plugin");
+            require.resolve(process.cwd() + "/.bundler/plugins/" + Name + "/plugin");
         }
-        catch (_a) {
+        catch (e) {
             return require("./plugins/" + Name + "/plugin");
         }
+        return require(process.cwd() + "/.bundler/plugins/" + Name + "/plugin");
     };
     PluginManager.OnAddPlugin = function (Callback) {
         this.Listeners.push(Callback);

@@ -4,20 +4,14 @@ var Path = require("path");
 var FileSystem = require("fs");
 function ensureDirectoryExistence(FilePath) {
     if (!FileSystem.existsSync(FilePath)) {
-        if (FileSystem.existsSync(Path.dirname(FilePath))) {
-            FileSystem.mkdirSync(FilePath);
-        }
-        else {
+        if (!FileSystem.existsSync(Path.dirname(FilePath))) {
             ensureDirectoryExistence(Path.dirname(FilePath));
         }
+        FileSystem.mkdirSync(FilePath);
     }
 }
 exports.ensureDirectoryExistence = ensureDirectoryExistence;
-function ensureDirectory(DirectoryPath) {
-    if (FileSystem.existsSync(DirectoryPath)) {
-        return true;
-    }
-    ensureDirectoryExistence(Path.dirname(DirectoryPath));
-    FileSystem.mkdirSync(DirectoryPath);
+function ensureDirectory(FilePath) {
+    ensureDirectoryExistence(Path.dirname(FilePath));
 }
 exports.ensureDirectory = ensureDirectory;

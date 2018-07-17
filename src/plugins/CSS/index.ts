@@ -1,9 +1,9 @@
-import { AbstractResolver } from "../../resolver";
+import { IResolver } from "../../resolver";
 import { extname } from "path";
 import { Bundler } from "../../Bundler";
 import * as FileSystem from "fs";
 
-export class CSSResolver extends AbstractResolver {
+export class CSSResolver implements IResolver {
     isFor(FilePath: string): boolean {
         return extname(FilePath) == ".css";
     }

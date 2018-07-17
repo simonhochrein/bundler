@@ -3,18 +3,13 @@ import * as FileSystem from "fs";
 
 export function ensureDirectoryExistence(FilePath) {
     if (!FileSystem.existsSync(FilePath)) {
-        if (FileSystem.existsSync(Path.dirname(FilePath))) {
-            FileSystem.mkdirSync(FilePath);
-        } else {
+        if (!FileSystem.existsSync(Path.dirname(FilePath))) {
             ensureDirectoryExistence(Path.dirname(FilePath));
         }
+        FileSystem.mkdirSync(FilePath);
     }
 }
 
-export function ensureDirectory(DirectoryPath) {
-    if (FileSystem.existsSync(DirectoryPath)) {
-        return true;
-    }
-    ensureDirectoryExistence(Path.dirname(DirectoryPath));
-    FileSystem.mkdirSync(DirectoryPath);
+export function ensureDirectory(FilePath) {
+    ensureDirectoryExistence(Path.dirname(FilePath));
 }

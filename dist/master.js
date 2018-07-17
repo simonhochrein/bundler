@@ -163,7 +163,7 @@ var App = /** @class */ (function () {
                     // }
                     if (_this._shouldCache(targetName)) {
                         var cached = Path.join(process.cwd(), "./.bundler/cache", targetName) + ".json";
-                        Util_1.ensureDirectoryExistence(cached);
+                        Util_1.ensureDirectory(cached);
                         fs_1.writeFileSync(cached, JSON.stringify(target));
                     }
                 }
@@ -254,6 +254,7 @@ var App = /** @class */ (function () {
         PluginManager_1.PluginManager.LoadPlugin("TypeScript");
         PluginManager_1.PluginManager.LoadPlugin("JavaScript");
         PluginManager_1.PluginManager.LoadPlugin("SASS");
+        PluginManager_1.PluginManager.LoadPlugin("EJS");
         Options_1.Options.OnChange(function (Opts) {
             _this._sockets.forEach(function (Sock) { Sock.send("options", Opts); });
             _this.files = {};
@@ -369,7 +370,7 @@ var onFinish = debounce(function () { return __awaiter(_this, void 0, void 0, fu
                 return [3 /*break*/, 6];
             case 5:
                 e_1 = _b.sent();
-                console.log(e_1);
+                log_1.Log.Error(e_1);
                 return [3 /*break*/, 6];
             case 6: return [2 /*return*/];
         }

@@ -1,13 +1,13 @@
 import { extname } from "path";
 import { readFileSync } from "fs";
 import { parse } from "acorn";
-import { AbstractResolver } from "../../resolver";
+import { IResolver } from "../../resolver";
 import { Bundler } from "../../Bundler";
 
 
 let walk = require("acorn/dist/walk");
 
-export class JSResolver extends AbstractResolver {
+export class JSResolver implements IResolver {
     isFor(FileName: string): boolean {
         return extname(FileName) == ".js";
     }

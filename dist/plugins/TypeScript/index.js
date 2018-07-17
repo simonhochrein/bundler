@@ -1,26 +1,13 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var FileSystem = require("fs");
 var acorn_1 = require("acorn");
-var resolver_1 = require("../../resolver");
 var TypeScript = require("typescript");
 var Bundler_1 = require("../../Bundler");
 var walk = require("acorn/dist/walk");
-var TSResolver = /** @class */ (function (_super) {
-    __extends(TSResolver, _super);
+var TSResolver = /** @class */ (function () {
     function TSResolver() {
-        return _super !== null && _super.apply(this, arguments) || this;
     }
     TSResolver.prototype.isFor = function (FilePath) {
         return path_1.extname(FilePath) == ".ts" || path_1.extname(FilePath) == ".tsx";
@@ -58,5 +45,5 @@ var TSResolver = /** @class */ (function (_super) {
         // });
     };
     return TSResolver;
-}(resolver_1.AbstractResolver));
+}());
 exports.TSResolver = TSResolver;

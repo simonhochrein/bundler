@@ -1,9 +1,9 @@
-import { AbstractResolver } from "../../resolver";
+import { IResolver } from "../../resolver";
 import { extname } from "path";
 import { readFileSync } from "fs";
 import { Bundler } from "../../Bundler";
 
-export class JSONResolver extends AbstractResolver {
+export class JSONResolver implements IResolver {
     isFor(FilePath: string): boolean {
         return extname(FilePath) == ".json";
     }

@@ -1,10 +1,10 @@
-import { AbstractResolver } from "../../resolver";
+import { IResolver } from "../../resolver";
 import { extname } from "path";
 import { readFileSync } from "fs";
 import { compile } from "ejs";
 import { Bundler } from "../../Bundler";
 
-export class EJSResolver extends AbstractResolver {
+export class EJSResolver implements IResolver {
     isFor(FilePath: string): boolean {
         return extname(FilePath) == ".ejs";
     }

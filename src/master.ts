@@ -124,6 +124,8 @@ class App {
         PluginManager.LoadPlugin("TypeScript");
         PluginManager.LoadPlugin("JavaScript");
         PluginManager.LoadPlugin("SASS");
+        PluginManager.LoadPlugin("EJS");
+
         Options.OnChange((Opts) => {
             this._sockets.forEach((Sock) => { Sock.send("options", Opts); });
             this.files = {};
@@ -266,7 +268,7 @@ class App {
                 // }
                 if (this._shouldCache(targetName)) {
                     let cached = Path.join(process.cwd(), "./.bundler/cache", targetName) + ".json";
-                    ensureDirectoryExistence(cached);
+                    ensureDirectory(cached);
                     writeFileSync(cached, JSON.stringify(target));
                 }
             }
@@ -331,7 +333,7 @@ var onFinish = debounce(async () => {
         // process.exit();
         Options.Save();
     } catch (e) {
-        console.log(e);
+        Log.Error(e);
     }
 }, 100, false);
 

@@ -1,4 +1,6 @@
 import { Options } from "./Options";
+import { join } from "path";
+import { Log } from "./log";
 
 export class PluginManager {
     static Listeners = [];
@@ -10,10 +12,11 @@ export class PluginManager {
     }
     static LoadPluginWorker(Name) {
         try {
-            return require(process.cwd() + "/.bundler/plugins/" + Name + "/plugin");
-        } catch {
+            require.resolve(process.cwd() + "/.bundler/plugins/" + Name + "/plugin");
+        } catch (e) {
             return require("./plugins/" + Name + "/plugin");
         }
+        return require(process.cwd() + "/.bundler/plugins/" + Name + "/plugin");
     }
     static OnAddPlugin(Callback) {
         this.Listeners.push(Callback);

@@ -1,10 +1,10 @@
-import { AbstractResolver } from "../../resolver";
+import { IResolver } from "../../resolver";
 import { extname } from "path";
 import * as sass from "node-sass";
 import { Bundler } from "../../Bundler";
 import { Options } from "../../Options";
 
-export class SCSSResolver extends AbstractResolver {
+export class SCSSResolver implements IResolver {
     isFor(FilePath: string): boolean {
         return extname(FilePath) == ".scss";
     }
