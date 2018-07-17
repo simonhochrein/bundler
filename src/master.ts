@@ -121,12 +121,18 @@ class App {
         PluginManager.OnAddPlugin((Name) => {
             this._sockets.forEach(Sock => { Sock.send("plugin", Name); });
         });
-        PluginManager.LoadPlugin("TypeScript");
-        PluginManager.LoadPlugin("JavaScript");
-        PluginManager.LoadPlugin("SASS");
-        PluginManager.LoadPlugin("EJS");
+        // PluginManager.LoadPlugin("TypeScript");
+        // PluginManager.LoadPlugin("JavaScript");
+        // PluginManager.LoadPlugin("SASS");
+        // PluginManager.LoadPlugin("EJS");
+        for (var plugin of Options.Get("Bundler.Plugins")) {
+            PluginManager.LoadPlugin(plugin);
+        }
 
         Options.OnChange((Opts) => {
+            if (process.argv[2] == "config") {
+                return;
+            }
             this._sockets.forEach((Sock) => { Sock.send("options", Opts); });
             this.files = {};
             Log.Info("Options changed, rebuilding");
@@ -136,10 +142,11 @@ class App {
 
         // var target = path.resolve(process.argv[2]);
         // this.entry = this._getName(target);
-        // if (process.argv[2] == "config") {
         require("./dashboard/server");
-        // return;
-        // }
+        if (process.argv[2] == "config") {
+            Log.Info("Server Running at http://localhost:8080");
+            return;
+        }
 
         var files = [];
         for (var i = 2; i < process.argv.length; i++) {
@@ -188,6 +195,7 @@ class App {
             socket.on("style", this.onStyle);
             socket.on("sourcemap", this.onSourceMap);
             socket.on("error", () => {
+                console.log("\n\n\n");
                 process.exit(1);
             });
             this._sockets.push(socket);

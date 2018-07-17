@@ -6,11 +6,5 @@ module.exports = {
     "Extensions": [".css"],
     "Resolvers": [CSSResolver],
     "Options": [
-        {
-            "ID": "JavaScript.test",
-            "Type": IOptionType.String,
-            "Name": "Test",
-            "Default": "hi"
-        }
     ]
 };

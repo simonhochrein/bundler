@@ -7,7 +7,9 @@ var Log = /** @class */ (function () {
     function Log() {
     }
     Log.Error = function (Message) {
-        console.log(Message.red);
+        Readline.cursorTo(process.stdout, 0, 1);
+        Readline.clearLine(process.stdout, 1);
+        process.stdout.write(Message.red);
     };
     Log.Info = function (Message) {
         Readline.cursorTo(process.stdout, 0, 1);

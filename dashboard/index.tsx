@@ -32,6 +32,16 @@ class App extends React.Component<any, { groups: { [key: string]: (IOption & { V
                         <input checked={Option.Value} type="checkbox" name={Option.ID} onChange={this.onChange} />
                     </>
                 );
+            case IOptionType.Array:
+                return (
+                    <>
+                        <select multiple onChange={this.onChange} name={Option.ID} value={Option.Value}>
+                            {Option.Options.map((Name, Key) => (
+                                <option key={Key}>{Name}</option>
+                            ))}
+                        </select>
+                    </>
+                );
         }
     }
     render() {
@@ -53,9 +63,11 @@ class App extends React.Component<any, { groups: { [key: string]: (IOption & { V
         );
     }
     onChange = async (ChangeEvent) => {
-        // console.log(ChangeEvent.target.value, ChangeEvent.target.name);
+        ChangeEvent.stopPropagation();
         if ("checked" in ChangeEvent.target) {
             this.processOptions(await (await fetch("/options/" + ChangeEvent.target.name + "/" + ChangeEvent.target.checked, { method: "POST" })).json());
+        } else if ("selectedOptions" in ChangeEvent.target) {
+            this.processOptions(await (await fetch("/options/" + ChangeEvent.target.name + "/" + encodeURIComponent(JSON.stringify(Array.from(ChangeEvent.target.selectedOptions).map((Option: HTMLOptionElement) => Option.text))), { method: "POST" })).json());
         } else {
             this.processOptions(await (await fetch("/options/" + ChangeEvent.target.name + "/" + ChangeEvent.target.value, { method: "POST" })).json());
         }

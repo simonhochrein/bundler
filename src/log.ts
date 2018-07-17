@@ -5,7 +5,9 @@ var timer: number = null;
 
 export class Log {
     static Error(Message: string) {
-        console.log(Message.red);
+        Readline.cursorTo(process.stdout, 0, 1);
+        Readline.clearLine(process.stdout, 1);
+        process.stdout.write(Message.red);
     }
     static Info(Message: string) {
         Readline.cursorTo(process.stdout, 0, 1);

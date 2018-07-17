@@ -14,6 +14,13 @@ var schemas: IOption[] = [
         Default: false,
         Name: "Cache Busting",
         Type: IOptionType.Boolean
+    },
+    {
+        ID: "Bundler.Plugins",
+        Default: ["JavaScript", "CSS"],
+        Name: "Plugins",
+        Type: IOptionType.Array,
+        Options: ["JavaScript", "EJS", "CSS", "SASS", "TypeScript"]
     }
 ];
 var listeners = [];
@@ -32,6 +39,9 @@ export class Options {
                     break;
                 case IOptionType.String:
                     options[Arg1] = Arg2;
+                    break;
+                case IOptionType.Array:
+                    options[Arg1] = typeof Arg2 == "string" ? JSON.parse(Arg2) : Arg2;
                     break;
             }
             listeners.forEach(Fn => Fn(options));

@@ -251,11 +251,18 @@ var App = /** @class */ (function () {
         PluginManager_1.PluginManager.OnAddPlugin(function (Name) {
             _this._sockets.forEach(function (Sock) { Sock.send("plugin", Name); });
         });
-        PluginManager_1.PluginManager.LoadPlugin("TypeScript");
-        PluginManager_1.PluginManager.LoadPlugin("JavaScript");
-        PluginManager_1.PluginManager.LoadPlugin("SASS");
-        PluginManager_1.PluginManager.LoadPlugin("EJS");
+        // PluginManager.LoadPlugin("TypeScript");
+        // PluginManager.LoadPlugin("JavaScript");
+        // PluginManager.LoadPlugin("SASS");
+        // PluginManager.LoadPlugin("EJS");
+        for (var _i = 0, _a = Options_1.Options.Get("Bundler.Plugins"); _i < _a.length; _i++) {
+            var plugin = _a[_i];
+            PluginManager_1.PluginManager.LoadPlugin(plugin);
+        }
         Options_1.Options.OnChange(function (Opts) {
+            if (process.argv[2] == "config") {
+                return;
+            }
             _this._sockets.forEach(function (Sock) { Sock.send("options", Opts); });
             _this.files = {};
             log_1.Log.Info("Options changed, rebuilding");
@@ -264,15 +271,16 @@ var App = /** @class */ (function () {
         });
         // var target = path.resolve(process.argv[2]);
         // this.entry = this._getName(target);
-        // if (process.argv[2] == "config") {
         require("./dashboard/server");
-        // return;
-        // }
+        if (process.argv[2] == "config") {
+            log_1.Log.Info("Server Running at http://localhost:8080");
+            return;
+        }
         var files = [];
         for (var i = 2; i < process.argv.length; i++) {
             if (/\\(.)|(^!|[*?{}()[\]]|\(\?)/.test(process.argv[i])) {
-                for (var _i = 0, _a = Glob.sync(process.argv[i]); _i < _a.length; _i++) {
-                    var file = _a[_i];
+                for (var _b = 0, _c = Glob.sync(process.argv[i]); _b < _c.length; _b++) {
+                    var file = _c[_b];
                     if (!~files.indexOf(file)) {
                         files.push(file);
                         log_1.Log.Info("Building " + file);
@@ -311,6 +319,7 @@ var App = /** @class */ (function () {
             socket.on("style", this_1.onStyle);
             socket.on("sourcemap", this_1.onSourceMap);
             socket.on("error", function () {
+                console.log("\n\n\n");
                 process.exit(1);
             });
             this_1._sockets.push(socket);
