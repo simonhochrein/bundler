@@ -9,7 +9,11 @@ export class PluginManager {
         this.Listeners.forEach((Cb) => Cb(Name));
     }
     static LoadPluginWorker(Name) {
-        return require("./plugins/" + Name + "/plugin");
+        try {
+            return require(process.cwd() + "/.bundler/plugins/" + Name + "/plugin");
+        } catch {
+            return require("./plugins/" + Name + "/plugin");
+        }
     }
     static OnAddPlugin(Callback) {
         this.Listeners.push(Callback);

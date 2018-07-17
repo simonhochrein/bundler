@@ -2,12 +2,13 @@ import * as Path from "path";
 import * as FileSystem from "fs";
 
 export function ensureDirectoryExistence(FilePath) {
-    var dirname = Path.dirname(FilePath);
-    if (FileSystem.existsSync(dirname)) {
-        return true;
+    if (!FileSystem.existsSync(FilePath)) {
+        if (FileSystem.existsSync(Path.dirname(FilePath))) {
+            FileSystem.mkdirSync(FilePath);
+        } else {
+            ensureDirectoryExistence(Path.dirname(FilePath));
+        }
     }
-    ensureDirectoryExistence(dirname);
-    FileSystem.mkdirSync(dirname);
 }
 
 export function ensureDirectory(DirectoryPath) {

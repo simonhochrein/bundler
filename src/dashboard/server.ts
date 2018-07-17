@@ -21,7 +21,7 @@ app.post("/options/:name/:value", (Request, Response) => {
 });
 
 app.get("/index.js", (Request, Response) => {
-    Response.sendFile(join(__dirname, "../../.build/index.bundle.js"));
+    Response.sendFile(join(__dirname, "../../.bundler/build/index.bundle.js"));
 });
 
 app.get("/", (Request, Response) => {

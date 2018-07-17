@@ -16,7 +16,7 @@ app.post("/options/:name/:value", function (Request, Response) {
     Response.json(Options_1.Options.GetOptions());
 });
 app.get("/index.js", function (Request, Response) {
-    Response.sendFile(path_1.join(__dirname, "../../.build/index.bundle.js"));
+    Response.sendFile(path_1.join(__dirname, "../../.bundler/build/index.bundle.js"));
 });
 app.get("/", function (Request, Response) {
     Response.sendFile(path_1.join(__dirname, "../../dashboard/index.html"));

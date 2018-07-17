@@ -1,7 +1,5 @@
 node_modules
-build
-bootstrap
-.cache
-.build
+./build/
+cache
 bundler.zip
 ./index.html

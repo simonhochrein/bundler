@@ -99,7 +99,7 @@ var App = /** @class */ (function () {
         this.files = {};
         this.bundles = [];
         this.styles = {};
-        this.outDir = Path.resolve("./.build");
+        this.outDir = Path.resolve("./.bundler/build");
         this.onSourceMap = function (FilePath, Source, SourceMap) {
             var file = _this.files[_this._getName(FilePath)];
             file.source = Source;
@@ -162,7 +162,7 @@ var App = /** @class */ (function () {
                     //     this._isPatch = false;
                     // }
                     if (_this._shouldCache(targetName)) {
-                        var cached = Path.join(process.cwd(), ".cache", targetName) + ".json";
+                        var cached = Path.join(process.cwd(), "./.bundler/cache", targetName) + ".json";
                         Util_1.ensureDirectoryExistence(cached);
                         fs_1.writeFileSync(cached, JSON.stringify(target));
                     }
@@ -201,11 +201,11 @@ var App = /** @class */ (function () {
         return Path.relative(process.cwd(), FilePath);
     };
     App.prototype.isCached = function (DependencyPath) {
-        var cached = Path.join(process.cwd(), ".cache", DependencyPath) + ".json";
+        var cached = Path.join(process.cwd(), "./.bundler/cache", DependencyPath) + ".json";
         return fs_1.existsSync(cached);
     };
     App.prototype.includeCached = function (DependencyPath) {
-        var self = this.files[DependencyPath] = JSON.parse(fs_1.readFileSync(Path.join(process.cwd(), ".cache", DependencyPath) + ".json", "utf8"));
+        var self = this.files[DependencyPath] = JSON.parse(fs_1.readFileSync(Path.join(process.cwd(), "./.bundler/cache", DependencyPath) + ".json", "utf8"));
         for (var _i = 0, _a = Object.values(self.dependencies); _i < _a.length; _i++) {
             var dep = _a[_i];
             // console.log(dep);
@@ -233,7 +233,7 @@ var App = /** @class */ (function () {
     App.prototype.run = function () {
         var _this = this;
         Options_1.Options.Load();
-        Util_1.ensureDirectory(this.outDir);
+        Util_1.ensureDirectoryExistence(this.outDir);
         chokidar.watch(process.cwd(), { ignored: /((^|[\/\\])\..|node_modules)/ }).on("all", function (Type, FilePath) {
             if (Type == "change") {
                 if (_this.files[_this._getName(FilePath)]) {

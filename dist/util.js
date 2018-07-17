@@ -3,12 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Path = require("path");
 var FileSystem = require("fs");
 function ensureDirectoryExistence(FilePath) {
-    var dirname = Path.dirname(FilePath);
-    if (FileSystem.existsSync(dirname)) {
-        return true;
+    if (!FileSystem.existsSync(FilePath)) {
+        if (FileSystem.existsSync(Path.dirname(FilePath))) {
+            FileSystem.mkdirSync(FilePath);
+        }
+        else {
+            ensureDirectoryExistence(Path.dirname(FilePath));
+        }
     }
-    ensureDirectoryExistence(dirname);
-    FileSystem.mkdirSync(dirname);
 }
 exports.ensureDirectoryExistence = ensureDirectoryExistence;
 function ensureDirectory(DirectoryPath) {

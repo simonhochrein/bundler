@@ -64,19 +64,19 @@ class App {
     public files: { [key: string]: IFile } = {};
     public bundles: string[] = [];
     public styles: { [key: string]: string } = {};
-    public outDir = Path.resolve("./.build");
+    public outDir = Path.resolve("./.bundler/build");
 
     private _getName(FilePath) {
         return Path.relative(process.cwd(), FilePath);
     }
 
     public isCached(DependencyPath) {
-        let cached = Path.join(process.cwd(), ".cache", DependencyPath) + ".json";
+        let cached = Path.join(process.cwd(), "./.bundler/cache", DependencyPath) + ".json";
         return existsSync(cached);
     }
 
     public includeCached(DependencyPath) {
-        var self = this.files[DependencyPath] = JSON.parse(readFileSync(Path.join(process.cwd(), ".cache", DependencyPath) + ".json", "utf8"));
+        var self = this.files[DependencyPath] = JSON.parse(readFileSync(Path.join(process.cwd(), "./.bundler/cache", DependencyPath) + ".json", "utf8"));
         for (var dep of (Object.values(self.dependencies) as string[])) {
             // console.log(dep);
             if (!this.files[dep]) {
@@ -103,7 +103,7 @@ class App {
 
     public run(): void {
         Options.Load();
-        ensureDirectory(this.outDir);
+        ensureDirectoryExistence(this.outDir);
         chokidar.watch(process.cwd(), { ignored: /((^|[\/\\])\..|node_modules)/ }).on("all", (Type, FilePath) => {
             if (Type == "change") {
                 if (this.files[this._getName(FilePath)]) {
@@ -265,7 +265,7 @@ class App {
                 //     this._isPatch = false;
                 // }
                 if (this._shouldCache(targetName)) {
-                    let cached = Path.join(process.cwd(), ".cache", targetName) + ".json";
+                    let cached = Path.join(process.cwd(), "./.bundler/cache", targetName) + ".json";
                     ensureDirectoryExistence(cached);
                     writeFileSync(cached, JSON.stringify(target));
                 }
