@@ -5,6 +5,7 @@ var log_1 = require("./log");
 var resolve = require("resolve");
 var builtins_1 = require("./builtins");
 var PluginManager_1 = require("./PluginManager");
+var Options_1 = require("./Options");
 var Bundler = /** @class */ (function () {
     function Bundler() {
     }
@@ -100,4 +101,13 @@ Bundler.OnPlugin(function (Name) {
     var plugin = PluginManager_1.PluginManager.LoadPluginWorker(Name);
     (_a = Bundler.Extensions).push.apply(_a, plugin.Extensions);
     (_b = Bundler.Resolvers).push.apply(_b, (plugin.Resolvers.map(function (Resolver) { return new Resolver(); })));
+});
+Bundler.OnFile(function (FileName, BaseDirectory, ParentFile) {
+    Bundler.Resolve(FileName, BaseDirectory, ParentFile);
+});
+Bundler.OnOptions(function (Opts) {
+    Options_1.Options.Set(Opts);
+});
+Bundler.OnFindDependencies(function (FileName) {
+    Bundler.FindDependencies(FileName);
 });

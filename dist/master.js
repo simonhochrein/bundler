@@ -53,7 +53,7 @@ var log_1 = require("./log");
 // import "./dashboard/server";
 var Generator_1 = require("./Generator");
 var Glob = require("glob");
-var util_1 = require("./util");
+var Util_1 = require("./Util");
 var Options_1 = require("./Options");
 var PluginManager_1 = require("./PluginManager");
 var server_1 = require("./dashboard/server");
@@ -163,7 +163,7 @@ var App = /** @class */ (function () {
                     // }
                     if (_this._shouldCache(targetName)) {
                         var cached = Path.join(process.cwd(), ".cache", targetName) + ".json";
-                        util_1.ensureDirectoryExistence(cached);
+                        Util_1.ensureDirectoryExistence(cached);
                         fs_1.writeFileSync(cached, JSON.stringify(target));
                     }
                 }
@@ -233,7 +233,7 @@ var App = /** @class */ (function () {
     App.prototype.run = function () {
         var _this = this;
         Options_1.Options.Load();
-        util_1.ensureDirectory(this.outDir);
+        Util_1.ensureDirectory(this.outDir);
         chokidar.watch(process.cwd(), { ignored: /((^|[\/\\])\..|node_modules)/ }).on("all", function (Type, FilePath) {
             if (Type == "change") {
                 if (_this.files[_this._getName(FilePath)]) {

@@ -1,7 +1,7 @@
 import { extname } from "path";
 import * as FileSystem from "fs";
 import { parse } from "acorn";
-import { AbstractResolver } from "../../resolvers/resolver";
+import { AbstractResolver } from "../../resolver";
 import * as TypeScript from "typescript";
 import { Bundler } from "../../Bundler";
 

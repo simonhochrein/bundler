@@ -1,4 +1,4 @@
-import { AbstractResolver } from "../../resolvers/resolver";
+import { AbstractResolver } from "../../resolver";
 import { extname } from "path";
 import { Bundler } from "../../Bundler";
 import * as FileSystem from "fs";

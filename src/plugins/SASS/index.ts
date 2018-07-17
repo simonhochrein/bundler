@@ -1,4 +1,4 @@
-import { AbstractResolver } from "../../resolvers/resolver";
+import { AbstractResolver } from "../../resolver";
 import { extname } from "path";
 import * as sass from "node-sass";
 import { Bundler } from "../../Bundler";

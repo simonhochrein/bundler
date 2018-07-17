@@ -1,7 +1,7 @@
 import { isMaster } from "cluster";
 
 if (isMaster) {
-    require("./master");
+    require("./Master");
 } else {
-    require("./worker");
+    require("./Bundler");
 }

@@ -39,7 +39,7 @@ var FileSystem = require("fs");
 var Path = require("path");
 var source_map_1 = require("source-map");
 var Cryptology = require("crypto");
-var util_1 = require("./util");
+var Util_1 = require("./Util");
 var Options_1 = require("./Options");
 var header = "(function(files, entry) {\n    window.global = window;\n    global.process = {env: {NODE_ENV:\"development\"}, cwd: function(){return '/'}};\n    window.cache = {};\n    var exportGetter = function() {\n        return this;\n    }\n    var require = function(file, name) {\n        var module = {exports: {}};\n        if(cache[files[file][1][name]]) {\n            return cache[files[file][1][name]].exports;\n        }else {\n            var newfile = files[file][1][name];\n            if(files[newfile]) {\n                cache[newfile] = {exports: {}}\n                files[newfile][0](require.bind(null, newfile), cache[newfile].exports, cache[newfile]);\n        \n                if(cache[newfile].exports && cache[newfile].exports.hasOwnProperty && !cache[newfile].exports.hasOwnProperty(\"default\") && Object.isExtensible(cache[newfile].exports)) {\n                    Object.defineProperty(cache[newfile].exports, \"default\", {get:exportGetter})\n                }\n\n                return cache[newfile].exports;\n            } else {\n                throw new Error(\"Cannot find module \"+name+\" from \"+file);\n            }\n        }\n    }\n    files[entry][0](require.bind(null, entry), {}, {});\n})({\n";
 var Generator = /** @class */ (function () {
@@ -62,7 +62,7 @@ var Generator = /** @class */ (function () {
                         // if (!FileSystem.existsSync(".build")) {
                         //     FileSystem.mkdirSync(".build");
                         // }
-                        util_1.ensureDirectoryExistence(_this.app.outDir);
+                        Util_1.ensureDirectoryExistence(_this.app.outDir);
                         // FileSystem.mkdirSync(this.app.outDir);
                         for (var _i = 0, _a = FileSystem.readdirSync(_this.app.outDir); _i < _a.length; _i++) {
                             var key = _a[_i];

@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var resolver_1 = require("../../resolvers/resolver");
+var resolver_1 = require("../../resolver");
 var path_1 = require("path");
 var fs_1 = require("fs");
 var ejs_1 = require("ejs");

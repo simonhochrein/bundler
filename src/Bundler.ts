@@ -3,6 +3,7 @@ import { Log } from "./log";
 import * as resolve from "resolve";
 import { BUILT_IN } from "./builtins";
 import { PluginManager } from "./PluginManager";
+import { Options } from "./Options";
 
 export class Bundler {
     static Queue = 0;
@@ -93,4 +94,17 @@ Bundler.OnPlugin(Name => {
     var plugin = PluginManager.LoadPluginWorker(Name);
     Bundler.Extensions.push(...plugin.Extensions);
     Bundler.Resolvers.push(...(plugin.Resolvers.map(Resolver => new Resolver())));
+});
+
+
+Bundler.OnFile(function (FileName, BaseDirectory, ParentFile) {
+    Bundler.Resolve(FileName, BaseDirectory, ParentFile);
+});
+
+Bundler.OnOptions((Opts) => {
+    Options.Set(Opts);
+});
+
+Bundler.OnFindDependencies(function (FileName) {
+    Bundler.FindDependencies(FileName);
 });

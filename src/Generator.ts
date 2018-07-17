@@ -3,7 +3,7 @@ import * as FileSystem from "fs";
 import * as Path from "path";
 import { SourceMapGenerator, SourceMapConsumer } from "source-map";
 import * as Cryptology from "crypto";
-import { ensureDirectoryExistence } from "./util";
+import { ensureDirectoryExistence } from "./Util";
 import { Options } from "./Options";
 
 let header = `(function(files, entry) {

@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var fs_1 = require("fs");
 var acorn_1 = require("acorn");
-var resolver_1 = require("../../resolvers/resolver");
+var resolver_1 = require("../../resolver");
 var Bundler_1 = require("../../Bundler");
 var walk = require("acorn/dist/walk");
 var JSResolver = /** @class */ (function (_super) {

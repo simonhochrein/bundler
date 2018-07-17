@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var cluster_1 = require("cluster");
 if (cluster_1.isMaster) {
-    require("./master");
+    require("./Master");
 }
 else {
-    require("./worker");
+    require("./Bundler");
 }

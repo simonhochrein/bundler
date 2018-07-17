@@ -7,7 +7,7 @@ import { Log } from "./log";
 // import "./dashboard/server";
 import { Generator } from "./Generator";
 import * as Glob from "glob";
-import { ensureDirectoryExistence, ensureDirectory } from "./util";
+import { ensureDirectoryExistence, ensureDirectory } from "./Util";
 import { Options } from "./Options";
 import { PluginManager } from "./PluginManager";
 import { updateWorkers } from "./dashboard/server";

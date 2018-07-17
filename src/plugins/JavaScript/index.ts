@@ -1,7 +1,7 @@
 import { extname } from "path";
 import { readFileSync } from "fs";
 import { parse } from "acorn";
-import { AbstractResolver } from "../../resolvers/resolver";
+import { AbstractResolver } from "../../resolver";
 import { Bundler } from "../../Bundler";
 
 
