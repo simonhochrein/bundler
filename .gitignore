@@ -2,4 +2,6 @@ node_modules
 ./build/
 cache
 bundler.zip
+.bundler
 ./index.html
+bundler.config.js
