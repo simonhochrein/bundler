@@ -5,7 +5,6 @@ var log_1 = require("./log");
 var resolve = require("resolve");
 var builtins_1 = require("./builtins");
 var PluginManager_1 = require("./PluginManager");
-var Options_1 = require("./Options");
 var Bundler = /** @class */ (function () {
     function Bundler() {
     }
@@ -63,7 +62,7 @@ var Bundler = /** @class */ (function () {
             if (FilePath && FilePath[0] == "/") {
                 _this.SocketInst.send("resolved", FileName, FilePath, ParentFile);
             }
-            else if (resolve.isCore(FilePath)) {
+            else if (resolve.isCore(FileName)) {
                 if (builtins_1.BUILT_IN[FilePath]) {
                     _this.SocketInst.send("resolved", FileName, builtins_1.BUILT_IN[FilePath], ParentFile);
                 }
@@ -106,7 +105,7 @@ Bundler.OnFile(function (FileName, BaseDirectory, ParentFile) {
     Bundler.Resolve(FileName, BaseDirectory, ParentFile);
 });
 Bundler.OnOptions(function (Opts) {
-    Options_1.Options.Set(Opts);
+    // Options.Set(Opts);
 });
 Bundler.OnFindDependencies(function (FileName) {
     Bundler.FindDependencies(FileName);

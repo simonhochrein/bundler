@@ -4,7 +4,6 @@ import * as Path from "path";
 import { SourceMapGenerator, SourceMapConsumer } from "source-map";
 import * as Cryptology from "crypto";
 import { ensureDirectoryExistence } from "./Util";
-import { Options } from "./Options";
 
 let header = `(function(files, entry) {
     window.global = window;
@@ -50,7 +49,7 @@ export class Generator {
     constructor(AppInstance: App, Bundle: string) {
         this.bundle = Bundle;
         this.app = AppInstance;
-        this._cacheBuster = Options.Get("Bundler.CacheBuster");
+        this._cacheBuster = AppInstance.config.cachebuster;
     }
     public async run() {
         return new Promise<string[]>(Resolve => {
@@ -93,7 +92,7 @@ export class Generator {
 
     public searchDependencies(FilePath: string) {
         if (!this.app.files[FilePath]) {
-            console.log(FilePath);
+            return;
         }
         var lines = this.app.files[FilePath].contents.split("\n").length;
         if (!this.app.files[FilePath].sourceMap) {

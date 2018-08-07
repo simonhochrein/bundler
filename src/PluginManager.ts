@@ -1,4 +1,3 @@
-import { Options } from "./Options";
 import { join } from "path";
 import { Log } from "./log";
 
@@ -7,7 +6,6 @@ export class PluginManager {
 
     static LoadPlugin(Name) {
         var plugin = this.LoadPluginWorker(Name);
-        Options.AddOptions(plugin.Options);
         this.Listeners.forEach((Cb) => Cb(Name));
     }
     static LoadPluginWorker(Name) {

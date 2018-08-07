@@ -52,11 +52,8 @@ var Path = require("path");
 var log_1 = require("./log");
 // import "./dashboard/server";
 var Generator_1 = require("./Generator");
-var Glob = require("glob");
 var Util_1 = require("./Util");
-var Options_1 = require("./Options");
 var PluginManager_1 = require("./PluginManager");
-var server_1 = require("./dashboard/server");
 var chokidar = require("chokidar");
 var workers = 8;
 function debounce(Fn, Wait, Immediate) {
@@ -76,7 +73,7 @@ function debounce(Fn, Wait, Immediate) {
     };
 }
 var App = /** @class */ (function () {
-    function App() {
+    function App(Arguments) {
         var _this = this;
         this._isPatch = false;
         this._sockets = [];
@@ -86,13 +83,7 @@ var App = /** @class */ (function () {
                 return Obj[Prop];
             },
             set: function (Obj, Prop, Val) {
-                if (Obj[Prop]) {
-                    Obj[Prop] = Val;
-                    server_1.updateWorkers(Obj);
-                }
-                else {
-                    Obj[Prop] = Val;
-                }
+                Obj[Prop] = Val;
                 return true;
             }
         });
@@ -196,6 +187,8 @@ var App = /** @class */ (function () {
             _this.files[_this._getName(ParentPath)].dependencies[Name] = null;
             _this.sendToWorker("file", Name, path_1.dirname(ParentPath), ParentPath);
         };
+        this.config = require(Path.join(process.cwd(), Arguments._[0]));
+        this.run();
     }
     App.prototype._getName = function (FilePath) {
         return Path.relative(process.cwd(), FilePath);
@@ -232,7 +225,6 @@ var App = /** @class */ (function () {
     };
     App.prototype.run = function () {
         var _this = this;
-        Options_1.Options.Load();
         Util_1.ensureDirectoryExistence(this.outDir);
         chokidar.watch(process.cwd(), { ignored: /((^|[\/\\])\..|node_modules)/ }).on("all", function (Type, FilePath) {
             if (Type == "change") {
@@ -255,46 +247,48 @@ var App = /** @class */ (function () {
         // PluginManager.LoadPlugin("JavaScript");
         // PluginManager.LoadPlugin("SASS");
         // PluginManager.LoadPlugin("EJS");
-        for (var _i = 0, _a = Options_1.Options.Get("Bundler.Plugins"); _i < _a.length; _i++) {
-            var plugin = _a[_i];
-            PluginManager_1.PluginManager.LoadPlugin(plugin);
-        }
-        Options_1.Options.OnChange(function (Opts) {
-            if (process.argv[2] == "config") {
-                return;
-            }
-            _this._sockets.forEach(function (Sock) { Sock.send("options", Opts); });
-            _this.files = {};
-            log_1.Log.Info("Options changed, rebuilding");
-            log_1.Log.Time();
-            files.forEach(function (File) { return _this.resolveFile(File, process.cwd(), "bundle"); });
-        });
+        // for (var plugin of Options.Get("Bundler.Plugins")) {
+        //     PluginManager.LoadPlugin(plugin);
+        // }
+        // Options.OnChange((Opts) => {
+        //     if (process.argv[2] == "config") {
+        //         return;
+        //     }
+        //     this._sockets.forEach((Sock) => { Sock.send("options", Opts); });
+        //     this.files = {};
+        //     Log.Info("Options changed, rebuilding");
+        //     Log.Time();
+        //     files.forEach(File => this.resolveFile(File, process.cwd(), "bundle"));
+        // });
         // var target = path.resolve(process.argv[2]);
         // this.entry = this._getName(target);
-        require("./dashboard/server");
-        if (process.argv[2] == "config") {
-            log_1.Log.Info("Server Running at http://localhost:8080");
-            return;
+        for (var _i = 0, _a = Object.keys(this.config.plugins); _i < _a.length; _i++) {
+            var plugin = _a[_i];
+            PluginManager_1.PluginManager.LoadPlugin(this.config.plugins[plugin]);
         }
         var files = [];
-        for (var i = 2; i < process.argv.length; i++) {
-            if (/\\(.)|(^!|[*?{}()[\]]|\(\?)/.test(process.argv[i])) {
-                for (var _b = 0, _c = Glob.sync(process.argv[i]); _b < _c.length; _b++) {
-                    var file = _c[_b];
-                    if (!~files.indexOf(file)) {
-                        files.push(file);
-                        log_1.Log.Info("Building " + file);
-                        this.resolveFile(file, process.cwd(), "bundle");
-                    }
-                }
-            }
-            else {
-                var file = process.argv[i];
-                files.push(file);
-                log_1.Log.Info("Building " + file);
-                this.resolveFile(file, process.cwd(), "bundle");
-            }
+        for (var _b = 0, _c = Object.keys(this.config.entry); _b < _c.length; _b++) {
+            var entry = _c[_b];
+            var file = this.config.entry[entry];
+            files.push(file);
+            this.resolveFile(file, process.cwd(), "bundle");
         }
+        // for (var i = 2; i < process.argv.length; i++) {
+        //     if (/\\(.)|(^!|[*?{}()[\]]|\(\?)/.test(process.argv[i])) {
+        //         for (var file of Glob.sync(process.argv[i])) {
+        //             if (!~files.indexOf(file)) {
+        //                 files.push(file);
+        //                 Log.Info("Building " + file);
+        //                 this.resolveFile(file, process.cwd(), "bundle");
+        //             }
+        //         }
+        //     } else {
+        //         var file = process.argv[i];
+        //         files.push(file);
+        //         Log.Info("Building " + file);
+        //         this.resolveFile(file, process.cwd(), "bundle");
+        //     }
+        // }
         // this.sendToWorker("findDependencies", process.argv[2]);
         // resolve("express", { basedir: process.cwd() }, (err, filepath) => {
         //     this.sendToWorker("file", "express", process.cwd(), "test.js");
@@ -309,7 +303,6 @@ var App = /** @class */ (function () {
             var cp = cluster_1.fork();
             var socket = new socket_1.Socket(cp);
             this_1._done[cp.id] = true;
-            socket.send("options", Options_1.Options.Get());
             socket.on("resolved", this_1.onResolved);
             socket.on("done", function () {
                 _this.onDone(cp);
@@ -319,8 +312,8 @@ var App = /** @class */ (function () {
             socket.on("style", this_1.onStyle);
             socket.on("sourcemap", this_1.onSourceMap);
             socket.on("error", function () {
-                console.log("\n\n\n");
-                process.exit(1);
+                // console.log("\n\n\n");
+                // process.exit(1);
             });
             this_1._sockets.push(socket);
         };
@@ -347,8 +340,8 @@ var App = /** @class */ (function () {
     return App;
 }());
 exports.App = App;
-var app = new App();
-app.run();
+var yargs_1 = require("yargs");
+var app = new App(yargs_1.argv);
 var onFinish = debounce(function () { return __awaiter(_this, void 0, void 0, function () {
     var manifest, _i, _a, bundle, res, e_1;
     return __generator(this, function (_b) {
@@ -364,22 +357,20 @@ var onFinish = debounce(function () { return __awaiter(_this, void 0, void 0, fu
                 return [4 /*yield*/, new Generator_1.Generator(app, bundle).run()];
             case 2:
                 res = _b.sent();
-                if (Options_1.Options.Get("Bundler.CacheBuster") == true) {
+                if (app.config.cachebuster) {
                     manifest[res[1]] = res[0];
+                    // }
                 }
+                app.config.cachebuster && fs_1.writeFileSync(app.outDir + "/manifest.json", JSON.stringify(manifest));
+                log_1.Log.TimeEnd("Done in % seconds");
                 _b.label = 3;
             case 3:
                 _i++;
                 return [3 /*break*/, 1];
-            case 4:
-                Options_1.Options.Get("Bundler.CacheBuster") == true && fs_1.writeFileSync(app.outDir + "/manifest.json", JSON.stringify(manifest));
-                log_1.Log.TimeEnd("Done in % seconds");
-                // process.exit();
-                Options_1.Options.Save();
-                return [3 /*break*/, 6];
+            case 4: return [3 /*break*/, 6];
             case 5:
                 e_1 = _b.sent();
-                log_1.Log.Error(e_1);
+                log_1.Log.Error(e_1.message);
                 return [3 /*break*/, 6];
             case 6: return [2 /*return*/];
         }

@@ -3,7 +3,6 @@ import { Log } from "./log";
 import * as resolve from "resolve";
 import { BUILT_IN } from "./builtins";
 import { PluginManager } from "./PluginManager";
-import { Options } from "./Options";
 
 export class Bundler {
     static Queue = 0;
@@ -64,7 +63,7 @@ export class Bundler {
             }
             if (FilePath && FilePath[0] == "/") {
                 this.SocketInst.send("resolved", FileName, FilePath, ParentFile);
-            } else if (resolve.isCore(FilePath)) {
+            } else if (resolve.isCore(FileName)) {
                 if (BUILT_IN[FilePath]) {
                     this.SocketInst.send("resolved", FileName, BUILT_IN[FilePath], ParentFile);
                 } else {
@@ -102,7 +101,7 @@ Bundler.OnFile(function (FileName, BaseDirectory, ParentFile) {
 });
 
 Bundler.OnOptions((Opts) => {
-    Options.Set(Opts);
+    // Options.Set(Opts);
 });
 
 Bundler.OnFindDependencies(function (FileName) {

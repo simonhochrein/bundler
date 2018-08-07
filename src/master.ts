@@ -8,9 +8,7 @@ import { Log } from "./log";
 import { Generator } from "./Generator";
 import * as Glob from "glob";
 import { ensureDirectoryExistence, ensureDirectory } from "./Util";
-import { Options } from "./Options";
 import { PluginManager } from "./PluginManager";
-import { updateWorkers } from "./dashboard/server";
 var chokidar = require("chokidar");
 // import { updateData } from "./dashboard/server";
 
@@ -52,12 +50,7 @@ class App {
             return Obj[Prop];
         },
         set: function (Obj, Prop, Val) {
-            if (Obj[Prop]) {
-                Obj[Prop] = Val;
-                updateWorkers(Obj);
-            } else {
-                Obj[Prop] = Val;
-            }
+            Obj[Prop] = Val;
             return true;
         }
     });
@@ -65,7 +58,11 @@ class App {
     public bundles: string[] = [];
     public styles: { [key: string]: string } = {};
     public outDir = Path.resolve("./.bundler/build");
-
+    public config;
+    constructor(Arguments) {
+        this.config = require(Path.join(process.cwd(), Arguments._[0]));
+        this.run();
+    }
     private _getName(FilePath) {
         return Path.relative(process.cwd(), FilePath);
     }
@@ -102,7 +99,6 @@ class App {
     }
 
     public run(): void {
-        Options.Load();
         ensureDirectoryExistence(this.outDir);
         chokidar.watch(process.cwd(), { ignored: /((^|[\/\\])\..|node_modules)/ }).on("all", (Type, FilePath) => {
             if (Type == "change") {
@@ -125,46 +121,51 @@ class App {
         // PluginManager.LoadPlugin("JavaScript");
         // PluginManager.LoadPlugin("SASS");
         // PluginManager.LoadPlugin("EJS");
-        for (var plugin of Options.Get("Bundler.Plugins")) {
-            PluginManager.LoadPlugin(plugin);
-        }
+        // for (var plugin of Options.Get("Bundler.Plugins")) {
+        //     PluginManager.LoadPlugin(plugin);
+        // }
 
-        Options.OnChange((Opts) => {
-            if (process.argv[2] == "config") {
-                return;
-            }
-            this._sockets.forEach((Sock) => { Sock.send("options", Opts); });
-            this.files = {};
-            Log.Info("Options changed, rebuilding");
-            Log.Time();
-            files.forEach(File => this.resolveFile(File, process.cwd(), "bundle"));
-        });
+        // Options.OnChange((Opts) => {
+        //     if (process.argv[2] == "config") {
+        //         return;
+        //     }
+        //     this._sockets.forEach((Sock) => { Sock.send("options", Opts); });
+        //     this.files = {};
+        //     Log.Info("Options changed, rebuilding");
+        //     Log.Time();
+        //     files.forEach(File => this.resolveFile(File, process.cwd(), "bundle"));
+        // });
 
         // var target = path.resolve(process.argv[2]);
         // this.entry = this._getName(target);
-        require("./dashboard/server");
-        if (process.argv[2] == "config") {
-            Log.Info("Server Running at http://localhost:8080");
-            return;
+        for (var plugin of Object.keys(this.config.plugins)) {
+            PluginManager.LoadPlugin(this.config.plugins[plugin]);
         }
 
         var files = [];
-        for (var i = 2; i < process.argv.length; i++) {
-            if (/\\(.)|(^!|[*?{}()[\]]|\(\?)/.test(process.argv[i])) {
-                for (var file of Glob.sync(process.argv[i])) {
-                    if (!~files.indexOf(file)) {
-                        files.push(file);
-                        Log.Info("Building " + file);
-                        this.resolveFile(file, process.cwd(), "bundle");
-                    }
-                }
-            } else {
-                var file = process.argv[i];
-                files.push(file);
-                Log.Info("Building " + file);
-                this.resolveFile(file, process.cwd(), "bundle");
-            }
+        for (var entry of Object.keys(this.config.entry)) {
+            var file = this.config.entry[entry];
+            files.push(file);
+            this.resolveFile(file, process.cwd(), "bundle");
         }
+
+        // for (var i = 2; i < process.argv.length; i++) {
+        //     if (/\\(.)|(^!|[*?{}()[\]]|\(\?)/.test(process.argv[i])) {
+        //         for (var file of Glob.sync(process.argv[i])) {
+        //             if (!~files.indexOf(file)) {
+        //                 files.push(file);
+        //                 Log.Info("Building " + file);
+        //                 this.resolveFile(file, process.cwd(), "bundle");
+        //             }
+        //         }
+        //     } else {
+        //         var file = process.argv[i];
+        //         files.push(file);
+        //         Log.Info("Building " + file);
+        //         this.resolveFile(file, process.cwd(), "bundle");
+        //     }
+        // }
+
         // this.sendToWorker("findDependencies", process.argv[2]);
 
         // resolve("express", { basedir: process.cwd() }, (err, filepath) => {
@@ -182,8 +183,6 @@ class App {
             let socket = new Socket(cp);
             this._done[cp.id] = true;
 
-            socket.send("options", Options.Get());
-
             socket.on("resolved", this.onResolved);
 
             socket.on("done", () => {
@@ -195,8 +194,8 @@ class App {
             socket.on("style", this.onStyle);
             socket.on("sourcemap", this.onSourceMap);
             socket.on("error", () => {
-                console.log("\n\n\n");
-                process.exit(1);
+                // console.log("\n\n\n");
+                // process.exit(1);
             });
             this._sockets.push(socket);
         }
@@ -320,8 +319,9 @@ class App {
     }
 }
 
-var app = new App();
-app.run();
+import { argv } from "yargs";
+
+var app = new App(argv);
 
 var onFinish = debounce(async () => {
     try {
@@ -332,16 +332,17 @@ var onFinish = debounce(async () => {
         var manifest = {};
         for (var bundle of app.bundles) {
             var res = await new Generator(app, bundle).run();
-            if (Options.Get("Bundler.CacheBuster") == true) {
+            if (app.config.cachebuster) {
                 manifest[res[1]] = res[0];
+                // }
             }
+            app.config.cachebuster && writeFileSync(app.outDir + "/manifest.json", JSON.stringify(manifest));
+            Log.TimeEnd("Done in % seconds");
+            // process.exit();
+            // Options.Save();
         }
-        Options.Get("Bundler.CacheBuster") == true && writeFileSync(app.outDir + "/manifest.json", JSON.stringify(manifest));
-        Log.TimeEnd("Done in % seconds");
-        // process.exit();
-        Options.Save();
     } catch (e) {
-        Log.Error(e);
+        Log.Error(e.message);
     }
 }, 100, false);
 

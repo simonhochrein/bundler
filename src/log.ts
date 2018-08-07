@@ -5,19 +5,19 @@ var timer: number = null;
 
 export class Log {
     static Error(Message: string) {
-        Readline.cursorTo(process.stdout, 0, 1);
-        Readline.clearLine(process.stdout, 1);
-        process.stdout.write(Message.red);
+        // Readline.cursorTo(process.stdout, 0, 1);
+        // Readline.clearLine(process.stdout, 1);
+        process.stdout.write(Message.red + "\n");
     }
     static Info(Message: string) {
-        Readline.cursorTo(process.stdout, 0, 1);
-        Readline.clearLine(process.stdout, 1);
-        process.stdout.write(Message.blue);
+        // Readline.cursorTo(process.stdout, 0, 1);
+        // Readline.clearLine(process.stdout, 1);
+        process.stdout.write(Message.blue + "\n");
     }
     static Success(Message: string) {
-        Readline.cursorTo(process.stdout, 0, 1);
-        Readline.clearLine(process.stdout, 1);
-        process.stdout.write(Message.green);
+        // Readline.cursorTo(process.stdout, 0, 1);
+        // Readline.clearLine(process.stdout, 1);
+        process.stdout.write(Message.green + "\n");
     }
     static Time() {
         timer = Date.now();
